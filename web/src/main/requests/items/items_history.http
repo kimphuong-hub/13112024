@@ -1,0 +1,14 @@
+POST /items_history HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "group_nr": 207,
+  "items": [
+    {
+      "item_name": "LYRECO LINEAL PLASTIK 30CM TRANSPAREN",
+      "item_vat": 0
+    }
+  ]
+}

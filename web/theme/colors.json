@@ -1,0 +1,209 @@
+{
+  "DNS": {
+    "brand": { "primary": "#54B0F8" },
+    "topBar": { "primary": "#54B0F8" },
+    "charts": {
+      "color1": "#0072c3",
+      "color2": "#1192e8",
+      "color3": "#33b1ff",
+      "color4": "#82cfff",
+      "color5": "#bae6ff",
+      "color6": "#e5f6ff",
+      "comparison_color1": "#1192e8",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "ECHT": {
+    "brand": { "primary": "#C3593E" },
+    "topBar": { "primary": "#21333A" },
+    "charts": {
+      "color1": "#FF602D",
+      "color2": "#ff784b",
+      "color3": "#fe906c",
+      "color4": "#feaf96",
+      "color5": "#fecebf",
+      "color6": "#faeae8",
+      "comparison_color1": "#FF602D",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "HGK": {
+    "brand": { "primary": "#002F68" },
+    "topBar": { "primary": "#002F68" },
+    "charts": {
+      "color1": "#002F68",
+      "color2": "#3456F9",
+      "color3": "#748afb",
+      "color4": "#88a7fb",
+      "color5": "#d7defe",
+      "color6": "#e8eaf6",
+      "comparison_color1": "#002F68",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "HOREGO": {
+    "brand": { "primary": "#e20016" },
+    "topBar": { "primary": "#e20016" },
+    "charts": {
+      "color1": "#A11B24",
+      "color2": "#E20016",
+      "color3": "#E20016",
+      "color4": "#FD848B",
+      "color5": "#FEB3B9",
+      "color6": "#FFD7DA",
+      "comparison_color1": "#0E6027",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "PEG": {
+    "brand": { "primary": "#79AC2B" },
+    "topBar": { "primary": "#79AC2B" },
+    "charts": {
+      "color1": "#044317",
+      "color2": "#0E6027",
+      "color3": "#198038",
+      "color4": "#24A148",
+      "color5": "#42BE65",
+      "color6": "#6FDC8C",
+      "comparison_color1": "#0E6027",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "RBT": {
+    "brand": { "primary": "#182654" },
+    "topBar": { "primary": "#182654" },
+    "charts": {
+      "color1": "#182654",
+      "color2": "#3456F9",
+      "color3": "#4060FA",
+      "color4": "#5571FA",
+      "color5": "#8DA0FC",
+      "color6": "#E8EAF6",
+      "comparison_color1": "#182654",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "Cisbox": {
+    "brand": { "primary": "#44D62C" },
+    "topBar": { "primary": "#44D62C" },
+    "charts": {
+      "color1": "#044317",
+      "color2": "#0E6027",
+      "color3": "#198038",
+      "color4": "#24A148",
+      "color5": "#42BE65",
+      "color6": "#6FDC8C",
+      "comparison_color1": "#0E6027",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "Progros": {
+    "brand": { "primary": "#732557" },
+    "topBar": { "primary": "#732557" },
+    "charts": {
+      "color1": "#732557",
+      "color2": "#A925FC",
+      "color3": "#D326F5",
+      "color4": "#DE4BF8",
+      "color5": "#E884F9",
+      "color6": "#E0BFE6",
+      "comparison_color1": "#732557",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  },
+  "Allinvos": {
+    "brand": { "primary": "#003867" },
+    "topBar": { "primary": "#003867" },
+    "charts": {
+      "color1": "#003867",
+      "color2": "#095598",
+      "color3": "#1074C0",
+      "color4": "#2194E5",
+      "color5": "#3BB3FB",
+      "color6": "#BCE7FD",
+      "comparison_color1": "#002F68",
+      "comparison_color2": "#E0E0E0"
+    },
+    "basic": {
+      "issue": "#FC0D1B",
+      "warning": "#F9C632",
+      "bad": "#F2994A",
+      "good": "#359DED",
+      "black": "#000000",
+      "grey": "#828282",
+      "grey_light": "#E0E0E0"
+    }
+  }
+}

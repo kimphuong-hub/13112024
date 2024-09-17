@@ -1,0 +1,3 @@
+GET /refresh HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{refresh_token}}

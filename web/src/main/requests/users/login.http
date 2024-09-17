@@ -1,0 +1,16 @@
+@email = admin@cisbox.com
+@password = qweasd
+
+POST /login HTTP/1.1
+Host: {{host}}
+Content-Type: multipart/form-data; boundary=--------------------------boundary
+
+----------------------------boundary
+Content-Disposition: form-data; name="email"
+
+{{email}}
+----------------------------boundary
+Content-Disposition: form-data; name="password"
+
+{{password}}
+----------------------------boundary--

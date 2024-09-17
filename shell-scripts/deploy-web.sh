@@ -1,0 +1,1 @@
+cd .. && GIT_COMMIT_ID=$(git rev-parse HEAD) docker compose -f docker-compose-prod.yml -p accounting_portal up -d --no-deps --build web

@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+ARG GIT_COMMIT_ID
+ENV GIT_COMMIT_ID=$GIT_COMMIT_ID
+
+ARG VITE_APP_API_URL
+ENV VITE_APP_API_URL=$VITE_APP_API_URL
+
+WORKDIR /app
+
+COPY ./web/package*.json ./
+
+RUN npm install
+
+COPY ./web .
+
+RUN npm run build
+
+EXPOSE 8080
+
+CMD [ "npm", "run", "production" ]

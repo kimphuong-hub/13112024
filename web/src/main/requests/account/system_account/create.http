@@ -1,0 +1,13 @@
+POST /system_account/create HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "account_no": "510025",
+  "account_name_en": "Test",
+  "account_name_vn": "Test",
+  "account_name_de": "Test",
+  "parent_account_id": 1,
+  "parent_account_no": "999800"
+}

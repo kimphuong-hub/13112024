@@ -1,0 +1,12 @@
+
+@group_no = 552
+@status = checked
+@keyword = 
+@sort = 
+@sort_direction = 1
+@page_current = 1
+@page_size = 50
+
+GET /invoice_detail?group_no={{group_no}}&status={{status}}&keyword={{keyword}}&sort={{sort}}&sort_direction={{sort_direction}}&page_current={{page_current}}&page_size={{page_size}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

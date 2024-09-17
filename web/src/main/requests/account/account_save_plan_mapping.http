@@ -1,0 +1,14 @@
+POST /account_save_plan_mapping HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "company_no": 30,
+  "company_accounting_plan_mapping": [
+    { 
+      "account_no": "7610", 
+      "system_account_no": "682111"
+    }
+  ]
+}

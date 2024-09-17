@@ -1,0 +1,1 @@
+folder_name="modified-files" && current_folder=$(basename "$PWD") && rm -rf ./$folder_name && mkdir -p ./$folder_name && cd .. && cp --parents $(git ls-files --modified) $(git ls-files --others --exclude-standard) ./$current_folder/$folder_name

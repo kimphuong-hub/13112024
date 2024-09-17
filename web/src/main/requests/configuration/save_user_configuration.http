@@ -1,0 +1,7 @@
+@theme = dark
+@language = en
+
+POST /save_user_configuration?theme={{theme}}&language={{language }} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data; boundary=--------------------------boundary

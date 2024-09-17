@@ -1,0 +1,30 @@
+{
+  "app.name": "Accounting DE",
+
+  "app.system.error.disconnect": "Entschuldigung, wir konnten keine Verbindung zum Server herstellen.",
+
+  "app.input.email.invalid": "Ungültige E-Mail",
+  "app.input.email.required": "E-Mail darf nicht leer sein",
+  "app.input.email.placeholder": "Geben Sie Ihre E-Mail ein",
+  "app.input.password.required": "Passwort darf nicht leer sein",
+  "app.input.password.placeholder": "Geben Sie Ihr Passwort ein",
+
+  "app.auth.login.button": "Einloggen",
+  "app.auth.login.forgot-password": "Passwort vergessen?",
+  "app.auth.login.success": "Erfolgreich eingeloggt",
+  "app.auth.login.failure": "Der Benutzername oder das Passwort ist falsch",
+  "app.auth.login.processing": "Einloggen läuft...",
+  "app.auth.request-password.button": "Passwort zurücksetzen",
+  "app.auth.request-password.button.login": "Einloggen",
+  "app.auth.request-password.login": "Zurück zur Anmeldung",
+  "app.auth.request-password.description": "Wir senden Ihnen einen Link zum Zurücksetzen des Passworts an Ihre E-Mail-Adresse",
+  "app.auth.request-password.success": "Eine Nachricht zum Zurücksetzen des Passworts wurde an Ihre E-Mail gesendet.",
+  "app.auth.request-password.failure.not-found": "Benutzer nicht gefunden!",
+  "app.auth.reset-password.button": "Passwort ändern",
+  "app.auth.reset-password.button.login": "Einloggen",
+  "app.auth.reset-password.description": "Bitte ändern Sie Ihr Passwort.",
+  "app.auth.reset-password.success": "Passwort erfolgreich geändert.",
+  "app.auth.reset-password.failure.expired": "Der Link zum Zurücksetzen des Passworts ist abgelaufen",
+  "app.auth.legal-notice": "Rechtlicher Hinweis",
+  "app.auth.privacy-policy": "Datenschutz und Nutzungsbedingungen"
+}

@@ -1,0 +1,5 @@
+@item_name = 
+
+GET /invoice/get_images?item_name={{item_name}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

@@ -1,0 +1,5 @@
+@system_account_ref = 1452
+
+GET /account_system_details?system_account_ref={{system_account_ref}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

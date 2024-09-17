@@ -1,0 +1,5 @@
+@public_id = 
+
+GET /account_company_by_public_id?public_id={{public_id}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

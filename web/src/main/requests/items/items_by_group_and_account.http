@@ -1,0 +1,6 @@
+@group_no = 66
+@account_no = 6650
+
+GET /items_by_group_and_account?group_no={{group_no}}&account_no={{account_no}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

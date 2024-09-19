@@ -1,0 +1,5 @@
+@company_no = 552
+
+GET /account_system_company_by_company_no?company_no={{company_no}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

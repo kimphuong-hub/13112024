@@ -29,7 +29,7 @@ export const systemAccountsSlice = createSlice({
       const { id, data } = action.payload;
       if (state.details[id].data) {
         const { accountId, ...restData } = data;
-        const findIndex = state.details[id].data.findIndex((item) => item.id === accountId);
+        const findIndex = state.details[id].data.findIndex((item) => `${item.id}` === accountId);
         if (findIndex > -1) {
           state.details[id].data[findIndex] = { ...state.details[id].data[findIndex], ...restData };
         }

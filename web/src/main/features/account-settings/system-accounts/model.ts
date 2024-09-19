@@ -1,33 +1,63 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { SystemAccountDetailResponse, SystemAccountResponse } from './types';
+import { SystemAccountDetailResponse, SystemAccountResponse, SystemCompanyAccountResponse } from './types';
+import { SystemAccountAPI, SystemAccountDetailAPI, SystemCompanyGroupAccountAPI } from './types.api';
 
-export const mappingSystemAccountResponse = (item: any): SystemAccountResponse => ({
-  id: `${item.id}`,
+export const mappingSystemAccountResponse = (item: SystemAccountAPI): SystemAccountResponse => ({
+  id: String(item.id),
+
   isDefault: item.is_default === 1,
-  accountNo: `${item.account_no || ''}`,
-  accountType: `${item.account_type || ''}`,
-  accountName: `${item.account_name_de || ''}`,
-  accountNameEN: `${item.account_name_en || ''}`,
-  accountNameVI: `${item.account_name_vn || ''}`,
-  accountDescription: `${item.account_description || ''}`,
-  accountCategory: `${item.account_category || ''}`,
-  accountNoCount: Number(item.account_no_count || ''),
+
+  accountNo: String(item.account_no || ''),
+  accountType: String(item.account_type || ''),
+  accountName: String(item.account_name_de || ''),
+  accountNameEN: String(item.account_name_en || ''),
+  accountNameVI: String(item.account_name_vn || ''),
+
+  accountDescription: String(item.account_description || ''),
+  accountCategory: String(item.account_category || ''),
+
   children: mappingSystemAccountsResponse(item.children)
 });
 
-export const mappingSystemAccountsResponse = (items: any[]): SystemAccountResponse[] =>
-  items?.map((item) => mappingSystemAccountResponse(item));
+export const mappingSystemAccountsResponse = (items: SystemAccountAPI[]): SystemAccountResponse[] =>
+  items.map((item) => mappingSystemAccountResponse(item));
 
-export const mappingSystemAccountDetailResponse = (item: any): SystemAccountDetailResponse => ({
-  id: `${item.id}`,
-  accountNo: `${item.account_no || ''}`,
-  accountName: `${item.account_name || ''}`,
-  companyNo: `${item.company_no || ''}`,
-  companyName: `${item.company_name || ''}`,
-  userMapping: `${item.user_name || ''}`,
-  totalItems: `${item.total_item || ''}`,
-  systemAccountRef: `${item.system_account_ref || ''}`
+export const mappingSystemAccountDetailResponse = (item: SystemAccountDetailAPI): SystemAccountDetailResponse => ({
+  id: String(item.id),
+  accountNo: String(item.account_no || ''),
+  accountName: String(item.account_name || ''),
+
+  companyNo: String(item.company_no || ''),
+  companyName: String(item.company_name || ''),
+
+  totalItems: String(item.total_item || ''),
+  userMapping: String(item.user_name || ''),
+
+  systemAccountRef: String(item.system_account_ref || '')
 });
 
-export const mappingSystemAccountDetailsResponse = (items: any[]): SystemAccountDetailResponse[] =>
-  items.map((item) => mappingSystemAccountDetailResponse(item));
+export const mappingSystemAccountDetailsResponse = (items: SystemAccountDetailAPI[]): SystemAccountDetailResponse[] => {
+  return items.map((item) => mappingSystemAccountDetailResponse(item));
+};
+
+export const mappingSystemCompanyAccountResponse = (
+  item: SystemCompanyGroupAccountAPI
+): SystemCompanyAccountResponse => ({
+  id: String(item.id),
+
+  accountNo: String(item.account_no || ''),
+  accountName: String(item.account_name_de || ''),
+  accountNameEN: String(item.account_name_en || ''),
+  accountNameVI: String(item.account_name_vn || ''),
+  accountNoCount: Number(item.account_no_count || '0'),
+
+  isGroupAccount: !item.account_no_count,
+  isContainGroupAccount: !(item.children || []).some((item) => !item.account_no_count),
+
+  children: mappingSystemCompanyAccountsResponse(item.children || [])
+});
+
+export const mappingSystemCompanyAccountsResponse = (
+  items: SystemCompanyGroupAccountAPI[]
+): SystemCompanyAccountResponse[] => {
+  return items.map((item) => mappingSystemCompanyAccountResponse(item));
+};

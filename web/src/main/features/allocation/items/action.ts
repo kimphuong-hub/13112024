@@ -32,8 +32,10 @@ export const getAllocationItemsDetail = createAsyncThunk(
     const { page = 0, pageSize = 1000 } = pagination || {};
 
     const fieldsStatus = {
-      allocation1: 'new',
-      checked: 'checked'
+      checked: 'checked',
+      allocation1: 'allocation1',
+      allocation2: 'allocation2',
+      verification: 'verification'
     };
 
     const queryParams = new URLSearchParams();
@@ -57,13 +59,16 @@ export const getAllocationItemsDetail = createAsyncThunk(
 export const saveAllocationItemsDetail = createAsyncThunk(
   typesAction.SAVE_ALLOCATION_ITEMS_DETAIL_ACTION,
   async (payload: {
+    status: string;
+    company_no: string;
     data: {
       id: string;
+      invoice_id: number;
+      invoice_position_id: number;
       account_id: string;
       account_no: string;
       system_account_id: string | 0;
       system_account_no: string | 0;
-      company_no: string;
     }[];
   }) => {
     const response = await axiosRequest.post(`${typesApi.SAVE_ALLOCATION_ITEMS_DETAIL_API}`, payload);

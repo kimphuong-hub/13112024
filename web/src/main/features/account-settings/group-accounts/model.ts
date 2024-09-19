@@ -1,76 +1,75 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GroupAccountResponse, GroupAllResponse, GroupDetailResponse, GroupResponse } from './types';
+import { GroupAPI, GroupAccountAPI, GroupAllAPI, GroupDetailAPI } from './types.api';
 
-export const mappingGroupResponse = (item: any): GroupResponse => ({
-  id: `${item.row_id || ''}`,
-  publicId: `${item.public_id || ''}`,
+export const mappingGroupResponse = (item: GroupAPI): GroupResponse => ({
+  id: String(item.row_id),
+  publicId: String(item.public_id || ''),
 
-  name: `${item.name || ''}`,
+  name: String(item.name || ''),
 
-  siteUrl: `${item.site_url || ''}`,
-  companyNo: `${item.company_no || ''}`,
-  partnerName: `${item.partner_name || ''}`,
+  siteUrl: String(item.site_url || ''),
+  companyNo: String(item.company_no || ''),
+  partnerName: String(item.partner_name || ''),
 
   totalAccount: Number(item.total_account || '0'),
   totalAccountMapped: Number(item.total_account_mapped || '0'),
   totalAccountUnMapped: Number(item.total_account_unmapp || '0'),
 
-  updatedAt: `${item.updated_at || ''}`
+  updatedAt: String(item.updated_at || '')
 });
 
-export const mappingGroupsResponse = (items: any[]): GroupResponse[] => {
+export const mappingGroupsResponse = (items: GroupAPI[]): GroupResponse[] => {
   return items.map((item) => mappingGroupResponse(item));
 };
 
-export const mappingGroupAllResponse = (item: any): GroupAllResponse => ({
-  id: `${item.public_id || ''}`,
-  publicId: `${item.public_id || ''}`,
-
-  name: `${item.name || ''}`,
-  companyNo: `${item.company_no || ''}`
+export const mappingGroupAllResponse = (item: GroupAllAPI): GroupAllResponse => ({
+  id: String(item.public_id),
+  publicId: String(item.public_id || ''),
+  name: String(item.name || ''),
+  companyNo: String(item.company_no || '')
 });
 
-export const mappingGroupsAllResponse = (items: any[]): GroupAllResponse[] => {
+export const mappingGroupsAllResponse = (items: GroupAllAPI[]): GroupAllResponse[] => {
   return items.map((item) => mappingGroupAllResponse(item));
 };
 
-export const mappingGroupDetailResponse = (item: any, companyNo: string): GroupDetailResponse => ({
-  id: `${item.id}`,
+export const mappingGroupDetailResponse = (item: GroupDetailAPI, companyNo: string): GroupDetailResponse => ({
+  id: String(item.id),
 
   companyNo,
 
-  accountNo: `${item.account_no || ''}`,
-  accountName: `${item.account_name || ''}`,
+  accountNo: String(item.account_no || ''),
+  accountName: String(item.account_name || ''),
 
-  systemAccountNo: `${item.system_account_no || ''}`,
-  systemAccountName: `${item.system_account_de || ''}`,
-  systemAccountRef: `${item.system_account_ref || ''}`,
+  systemAccountNo: String(item.system_account_no || ''),
+  systemAccountName: String(item.system_account_de || ''),
+  systemAccountRef: String(item.system_account_ref || ''),
 
-  userMapping: `${item.user_name || ''}`,
+  userMapping: String(item.user_name || ''),
 
   status: item.status,
   totalItems: Number(item.total_item || '0'),
-  lastAllocation: `${item.last_allocation || ''}`
+  lastAllocation: String(item.last_allocation || '')
 });
 
-export const mappingGroupDetailsResponse = (items: any[], companyNo: string): GroupDetailResponse[] => {
+export const mappingGroupDetailsResponse = (items: GroupDetailAPI[], companyNo: string): GroupDetailResponse[] => {
   return items.map((item) => mappingGroupDetailResponse(item, companyNo));
 };
 
-export const mappingGroupAccountResponse = (item: any): GroupAccountResponse => ({
-  id: `${item.id || ''}`,
+export const mappingGroupAccountResponse = (item: GroupAccountAPI): GroupAccountResponse => ({
+  id: String(item.id),
 
-  companyNo: `${item.company_no || ''}`,
-  companyName: `${item.company_name || ''}`,
+  companyNo: String(item.company_no || ''),
+  companyName: String(item.company_name || ''),
 
-  accountNo: `${item.account_no || ''}`,
-  accountName: `${item.account_name || ''}`,
+  accountNo: String(item.account_no || ''),
+  accountName: String(item.account_name || ''),
 
-  systemAccountNo: `${item.system_account_no || ''}`,
-  systemAccountName: `${item.system_account_de || ''}`,
-  systemAccountRef: `${item.system_account_ref || ''}`
+  systemAccountNo: String(item.system_account_no || ''),
+  systemAccountName: String(item.system_account_de || ''),
+  systemAccountRef: String(item.system_account_ref || '')
 });
 
-export const mappingGroupAccountsResponse = (items: any[]): GroupAccountResponse[] => {
+export const mappingGroupAccountsResponse = (items: GroupAccountAPI[]): GroupAccountResponse[] => {
   return items.map((item) => mappingGroupAccountResponse(item));
 };

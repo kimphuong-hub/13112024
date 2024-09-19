@@ -46,8 +46,9 @@ const GroupSettingsGroupsAccountsUpdateScreen = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const typeValue = searchParams.get('type') ?? '';
   const searchValue = searchParams.get('q') ?? '';
-  const filterAllAccounts = searchParams.get('filter-all-accounts') === 'true';
+
   const sizePane = searchParams.get('size-pane') || '';
+  const filterAllAccounts = searchParams.get('filter-all-accounts') === 'true';
 
   const dispatch = useDispatchApp();
   const details = useSelectorApp((state) => state.accountSettings.groupAccounts.details);
@@ -143,7 +144,7 @@ const GroupSettingsGroupsAccountsUpdateScreen = () => {
     (params: GridCellParams) => {
       const { id: selected, field } = params;
 
-      if (field === 'status') {
+      if (field === 'status' || field === 'totalItems') {
         return;
       }
 
@@ -151,13 +152,12 @@ const GroupSettingsGroupsAccountsUpdateScreen = () => {
 
       if (selected) {
         searchParams.set('selected', `${selected}`);
-        searchParams.delete('search');
-        setSearchParams(searchParams);
       } else {
-        searchParams.delete('search');
         searchParams.delete('selected');
-        setSearchParams(searchParams);
       }
+
+      searchParams.delete('search');
+      setSearchParams(searchParams);
 
       if (searchTreeFieldRef.current) {
         searchTreeFieldRef.current.value = '';

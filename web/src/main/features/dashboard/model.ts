@@ -1,22 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { InvoiceItemsOverviewResponse, InvoiceOverviewResponse, ItemTrendResponse } from './types';
 import { v4 as uuidv4 } from 'uuid';
+import { InvoiceItemsOverviewResponse, InvoiceOverviewResponse, ItemTrendResponse } from './types';
+import { InvoiceItemsOverviewAPI, InvoiceOverviewAPI, ItemTrendAPI } from './types.api';
 
-export const mappingItemTrendResponse = (item: any): ItemTrendResponse => ({
+export const mappingItemTrendResponse = (item: ItemTrendAPI): ItemTrendResponse => ({
   id: uuidv4(),
-  date: `${item.date || ''}`,
-  dayName: `${item.day_name || ''}`,
+  date: String(item.date || ''),
+  dayName: String(item.day_name || ''),
   totalItems: Number(item.total_items || '0')
 });
 
-export const mappingItemsTrendResponse = (items: any[]): ItemTrendResponse[] => {
+export const mappingItemsTrendResponse = (items: ItemTrendAPI[]): ItemTrendResponse[] => {
   return items.map((item) => mappingItemTrendResponse(item));
 };
 
-export const mappingInvoiceOverviewResponse = (item: any): InvoiceOverviewResponse => ({
+export const mappingInvoiceOverviewResponse = (item: InvoiceOverviewAPI): InvoiceOverviewResponse => ({
   id: uuidv4(),
-  date: `${item.date || ''}`,
-  dayName: `${item.day_name || ''}`,
+  date: String(item.date || ''),
+  dayName: String(item.day_name || ''),
   totalDefaultAllocation: Number(item.total_default_allocation || '0'),
   totalInvoices: Number(item.total_invoices || '0'),
   totalItems: Number(item.total_items || '0'),
@@ -24,11 +24,11 @@ export const mappingInvoiceOverviewResponse = (item: any): InvoiceOverviewRespon
   totalNewAllocation: Number(item.total_new_allocation || '0')
 });
 
-export const mappingInvoicesOverviewResponse = (items: any[]): InvoiceOverviewResponse[] => {
+export const mappingInvoicesOverviewResponse = (items: InvoiceOverviewAPI[]): InvoiceOverviewResponse[] => {
   return items.map((item) => mappingInvoiceOverviewResponse(item));
 };
 
-export const mappingInvoiceItemsOverviewResponse = (item: any): InvoiceItemsOverviewResponse => ({
+export const mappingInvoiceItemsOverviewResponse = (item: InvoiceItemsOverviewAPI): InvoiceItemsOverviewResponse => ({
   over24H: Number(item.over_24h || '0'),
   over48H: Number(item.over_48h || '0'),
   itemsPending: Number(item.items_pending || '0'),

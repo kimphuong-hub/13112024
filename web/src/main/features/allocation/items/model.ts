@@ -1,84 +1,110 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AllocationItemsDetailResponse, AllocationItemsResponse } from './types';
+import { AllocationItemsAPI, AllocationItemsDetailAPI } from './types.api';
 
-export const mappingAllocationItemResponse = (item: any): AllocationItemsResponse => ({
-  reseller: `${item.reseller || ''}`,
+export const mappingAllocationItemResponse = (item: AllocationItemsAPI): AllocationItemsResponse => ({
+  reseller: String(item.reseller || ''),
 
-  companyNo: `${item.company_no || ''}`,
-  companyName: `${item.company_name || ''}`,
+  companyNo: String(item.company_no || '0'),
+  companyName: String(item.company_name || ''),
 
-  invoices: Number(item.invoices),
+  invoices: Number(item.invoices || '0'),
 
-  items: Number(item.items),
-  newItems: Number(item.new_items),
+  items: Number(item.items || '0'),
+  newItems: Number(item.new_items || '0'),
 
-  checked: Number(item.checked),
-  inProcess: Number(item.in_process),
+  checked: Number(item.checked || '0'),
+  allocation1: Number(item.allocation1 || '0'),
+  allocation2: Number(item.allocation2 || '0'),
+  verification: Number(item.verification || '0'),
 
-  lastAllocation: Number(item.last_allocation),
-  defaultAllocation: Number(item.default_allocation)
+  lastAllocation: Number(item.last_allocation || '0'),
+  defaultAllocation: Number(item.default_allocation || '0')
 });
 
-export const mappingAllocationItemsResponse = (items: any[]): AllocationItemsResponse[] => {
+export const mappingAllocationItemsResponse = (items: AllocationItemsAPI[]): AllocationItemsResponse[] => {
   return items.map((item) => mappingAllocationItemResponse(item));
 };
 
-export const mappingAllocationItemsDetailResponse = (item: any): AllocationItemsDetailResponse => ({
-  id: `${item.id || ''}`,
+export const mappingAllocationItemsDetailResponse = (item: AllocationItemsDetailAPI): AllocationItemsDetailResponse => {
+  let accountId = String(item.account_id || '');
+  let accountNo = String(item.account_no || '');
+  let accountName = String(item.account_name || '');
 
-  itemName: `${item.item_name || ''}`,
-  itemNameVI: `${item.item_name_vi || ''}`,
-  itemNumber: `${item.item_number || item.item_no || ''}`,
-  itemDescription: `${item.item_description || ''}`,
+  let systemAccountId = String(item.system_account_id || '');
+  let systemAccountNo = String(item.system_account_no || '');
+  let systemAccountName = String(item.system_account_name || '');
 
-  reseller: `${item.reseller}`,
+  // allocation1, allocation2 not show account
+  if (['allocation1', 'allocation2'].includes(item.status)) {
+    accountId = '';
+    accountNo = '';
+    accountName = '';
 
-  accountId: `${item.account_id || ''}`,
-  accountNo: `${item.account_no || ''}`,
-  accountName: `${item.account_name || ''}`,
+    systemAccountId = '';
+    systemAccountNo = '';
+    systemAccountName = '';
+  }
 
-  systemAccountId: `${item.system_account_id || ''}`,
-  systemAccountNo: `${item.system_account_no || ''}`,
-  systemAccountName: `${item.system_account_name || ''}`,
+  return {
+    id: String(item.id),
 
-  status: `${item.status || ''}`,
-  allocationType: `${item.allocation_type || ''}`,
+    itemName: String(item.item_name || ''),
+    itemNameVI: String(item.item_name_vi || ''),
+    itemNumber: String(item.item_number || ''),
+    itemDescription: String(item.item_description || ''),
 
-  companyNo: `${item.company_no || ''}`,
-  companyName: `${item.company_name || ''}`,
+    reseller: String(item.reseller),
 
-  supplierNo: `${item.supplier_no}`,
-  supplierName: `${item.supplier_name || ''}`,
+    accountId,
+    accountNo,
+    accountName,
 
-  customerNo: `${item.customer_no || ''}`,
-  customerName: `${item.customer_name || ''}`,
+    systemAccountId,
+    systemAccountNo,
+    systemAccountName,
 
-  externalId: `${item.external_id || ''}`,
-  externalDetailId: `${item.external_detail_id || ''}`,
-  externalFilename: `${item.external_filename || ''}`,
-  externalFilenameInvoice: `${item.external_filename_invoice || ''}`,
+    status: String(item.status || ''),
+    allocationType: String(item.allocation_type || ''),
 
-  net: Number(item.net || '0'),
-  vat: Number(item.vat || '0'),
-  tax: Number(item.tax || '0'),
-  unit: `${item.unit || ''}`,
-  gross: Number(item.gross || '0'),
-  currency: `${item.currency || ''}`,
-  quantity: Number(item.quantity || '0'),
+    companyNo: String(item.company_no || ''),
+    companyName: String(item.company_name || ''),
 
-  score: Number(item.score || '0'),
-  isOpen: `${item.is_open || ''}`,
-  pdfUrl: `${item.pdf_url || ''}`,
-  imagesUrl: item.image_url,
+    supplierNo: String(item.supplier_no),
+    supplierName: String(item.supplier_name || ''),
 
-  invoiceDate: `${item.invoice_date || ''}`,
-  invoiceNumber: `${item.invoice_number || ''}`,
+    customerNo: String(item.customer_no || ''),
+    customerName: String(item.customer_name || ''),
 
-  folderDate: `${item.folder_date || ''}`,
-  createdDate: Number(item.created_at || '0'),
-  updatedDate: Number(item.updated_at || '0')
-});
+    externalId: String(item.external_id || ''),
+    externalDetailId: String(item.external_detail_id || ''),
+    externalFilename: String(item.external_filename || ''),
 
-export const mappingAllocationItemsDetailsResponse = (items: any[]): AllocationItemsDetailResponse[] => {
+    net: Number(item.net || '0'),
+    vat: Number(item.vat || '0'),
+    tax: Number(item.tax || '0'),
+    unit: String(item.unit || ''),
+    gross: Number(item.gross || '0'),
+    currency: String(item.currency || ''),
+    quantity: Number(item.quantity || '0'),
+
+    score: Number(item.score || '0'),
+    isOpen: String(item.is_open || ''),
+    pdfUrl: String(item.pdf_url || ''),
+    imagesUrl: item.image_url,
+
+    invoiceId: Number(item.invoice_id || '0'),
+    invoiceDate: String(item.invoice_date || ''),
+    invoiceNumber: String(item.invoice_number || ''),
+    invoicePositionId: Number(item.invoice_position_id || '0'),
+
+    folderDate: String(item.folder_date || ''),
+    createdDate: String(item.created_date || ''),
+    updatedDate: String(item.updated_date || '')
+  };
+};
+
+export const mappingAllocationItemsDetailsResponse = (
+  items: AllocationItemsDetailAPI[]
+): AllocationItemsDetailResponse[] => {
   return items.map((item) => mappingAllocationItemsDetailResponse(item));
 };

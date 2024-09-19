@@ -14,24 +14,45 @@ export type SystemAccountsState = {
 export type SystemAccountResponse = {
   id: string;
   isDefault: boolean;
+
   accountNo: string;
   accountType: string;
   accountName: string;
   accountNameEN: string;
   accountNameVI: string;
+
   accountDescription: string;
   accountCategory: string;
-  accountNoCount: number;
+
   children: SystemAccountResponse[];
 };
 
 export type SystemAccountDetailResponse = {
   id: string;
+
   accountNo: string;
   accountName: string;
+
   companyNo: string;
   companyName: string;
-  userMapping: string;
+
   totalItems: string;
+  userMapping: string;
+
   systemAccountRef: string;
+};
+
+export type SystemCompanyAccountResponse = {
+  id: string;
+
+  accountNo: string;
+  accountName: string;
+  accountNameEN: string;
+  accountNameVI: string;
+  accountNoCount: number;
+
+  isGroupAccount: boolean;
+  isContainGroupAccount: boolean;
+
+  children: SystemCompanyAccountResponse[];
 };

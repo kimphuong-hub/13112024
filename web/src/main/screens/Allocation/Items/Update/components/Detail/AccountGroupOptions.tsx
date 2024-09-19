@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 import { FormikProps } from 'formik';
-import { KeyboardEvent, MutableRefObject, useEffect, useMemo, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Fragment } from 'react/jsx-runtime';
 import FontAwesomeIcon from '~/base/components/Icon/FontAwesome';
@@ -8,22 +8,17 @@ import Autocomplete from '~/base/components/Material/Form/Autocomplete';
 import AutoCompleteTextField from '~/base/components/Material/Form/Autocomplete/TextField';
 import { TypographySearch } from '~/base/components/Material/Typography';
 import { isDev } from '~/core/config';
+import { getGroupAccountsByCompanyNo } from '~/main/features/account-settings/group-accounts/action';
 import { GroupAccountResponse } from '~/main/features/account-settings/group-accounts/types';
 import { useDispatchApp, useSelectorApp } from '~/redux/store';
 import { FormValues } from '../../common/form';
-import { getGroupAccountsByCompanyNo } from '~/main/features/account-settings/group-accounts/action';
 
 type Props = Omit<React.ComponentProps<typeof Autocomplete>, 'options' | 'renderInput'> & {
   formik: FormikProps<FormValues>;
-  open: boolean;
-  inputRef: MutableRefObject<HTMLInputElement | undefined>;
-  onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
-  onChangeOpen: (open: boolean) => void;
-  onChangeValue: (account: GroupAccountResponse) => void;
 };
 
 const AccountGroupOptions = (props: Props) => {
-  const { formik, open, inputRef, onKeyDown, onChangeOpen, onChangeValue, style, ...restProps } = props;
+  const { formik, style, ...restProps } = props;
 
   const { values, touched, errors } = formik;
   const { groupAccount = null } = values;
@@ -36,38 +31,63 @@ const AccountGroupOptions = (props: Props) => {
   const { groupAccountOptions } = useSelectorApp((state) => state.allocation.items);
   const { data: options = [], status } = groupAccountOptions[companyNo] || {};
 
-  const [groupAccountSearch, setGroupAccountSearch] = useState('');
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [isConfirm, setIsConfirm] = useState(false);
 
   useEffect(() => {
     dispatch(getGroupAccountsByCompanyNo({ companyNo }));
   }, [companyNo, dispatch]);
 
-  const groupAccountOptionsProxy = useMemo(() => {
-    let optionsItems = options;
+  const onChange = useCallback(
+    async (groupAccount: GroupAccountResponse) => {
+      formik.setFieldValue('groupAccount', groupAccount);
 
-    if (!systemAccount?.id) {
-      return optionsItems;
+      setOpen(false);
+      setIsConfirm(true);
+    },
+    [formik]
+  );
+
+  const onKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter') {
+        if (isConfirm) {
+          formik.submitForm();
+          setIsConfirm(false);
+          return;
+        }
+      }
+
+      setOpen(true);
+    },
+    [formik, isConfirm]
+  );
+
+  const optionsProxy = useMemo(() => {
+    if (!systemAccount) {
+      return [];
     }
 
     // filter options by system id
-    optionsItems = options.filter((item) => `${item.systemAccountRef}`.includes(`${systemAccount?.id}`));
+    const optionsItems = options.filter((item) => item.systemAccountRef.includes(systemAccount.id));
 
     if (optionsItems.length > 0) {
       return optionsItems;
     }
 
     return [...(groupAccount ? [groupAccount] : [])];
-  }, [groupAccount, options, systemAccount?.id]);
+  }, [groupAccount, options, systemAccount]);
 
   return (
     <Autocomplete
       style={{ width: '100%', ...style }}
       open={open}
       loading={status === 'loading'}
-      onBlur={() => onChangeOpen(false)}
-      onClose={() => setGroupAccountSearch('')}
-      onChange={(_, value) => onChangeValue(value as GroupAccountResponse)}
-      onInputChange={(_, value) => setGroupAccountSearch(value)}
+      onBlur={() => setOpen(false)}
+      onClose={() => setSearch('')}
+      onChange={(_, value) => onChange(value as GroupAccountResponse)}
+      onInputChange={(_, value) => setSearch(value)}
       popupIcon={
         <FontAwesomeIcon
           icon={open ? 'fa-solid fa-caret-down' : 'fa-solid fa-caret-down'}
@@ -79,7 +99,7 @@ const AccountGroupOptions = (props: Props) => {
       clearIcon={<FontAwesomeIcon icon='fa-solid fa-xmark' size={10} padding='5px 7px' />}
       slotProps={{
         popupIndicator: {
-          onClick: () => onChangeOpen(!open)
+          onClick: () => setOpen(!open)
         }
       }}
       getOptionLabel={(_option) => {
@@ -99,16 +119,15 @@ const AccountGroupOptions = (props: Props) => {
             <TypographySearch
               fontSize={13}
               text={`${isDev ? `${option.id}` : ''}${option.accountNo ? `${isDev ? ` - ` : ''}${option.accountNo}` : ''}${option.accountName ? ` - ${option.accountName}` : ''}`}
-              search={groupAccountSearch}
+              search={search}
             />
           </Box>
         );
       }}
-      options={groupAccountOptionsProxy}
+      options={optionsProxy}
       renderInput={(params) => (
         <AutoCompleteTextField
           {...params}
-          inputRef={inputRef}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

@@ -1,6 +1,8 @@
 import { Grid } from '@mui/material';
+import { AxiosResponse } from 'axios';
 import { FormikProps } from 'formik';
-import { KeyboardEvent, forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '~/base/components/Icon/FontAwesome';
@@ -10,8 +12,8 @@ import TextField from '~/base/components/Material/Form/TextField';
 import Tooltip from '~/base/components/Material/Tooltip';
 import Typography from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
-import { GroupAccountResponse } from '~/main/features/account-settings/group-accounts/types';
-import { AllocationItemsDetailChanged, AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
+import { getAllocationInvoiceImages } from '~/main/features/allocation/items/action';
+import { AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
 import { getItemsHistory } from '~/main/features/items/action';
 import { useDispatchApp, useSelectorApp } from '~/redux/store';
 import { useColumns, useColumnsOtherGroups } from '../../common/columns';
@@ -23,29 +25,15 @@ import RowDetail from './RowDetail';
 type Props = {
   formik: FormikProps<FormValues>;
   detail: AllocationItemsDetailResponse;
-  imagesUrl: string[];
-  onEdited?: () => void;
-  onChange?: (item: AllocationItemsDetailChanged) => void;
-  onReloadImages: () => void;
+  loading: boolean;
+  onLoading: (status: boolean) => void;
   onLayoutRender?: () => void;
   openSplitPane: boolean;
   onCloseSplitPane?: () => void;
 };
 
 const Detail = forwardRef((props: Props, ref) => {
-  const {
-    formik,
-    detail,
-    imagesUrl,
-    onEdited,
-    onChange,
-    onReloadImages,
-    onLayoutRender,
-    openSplitPane,
-    onCloseSplitPane
-  } = props;
-  const { values } = formik;
-  const { groupAccount = null } = values;
+  const { formik, detail, loading, onLoading, onLayoutRender, openSplitPane, onCloseSplitPane } = props;
 
   const { t } = useTranslation();
 
@@ -58,10 +46,8 @@ const Detail = forwardRef((props: Props, ref) => {
   const { language } = common;
   const { data: itemsHistory = [], status } = defaultItemsHistory['0'] || {};
 
+  const [imagesUrl, setImagesUrl] = useState<string[]>([]);
   const [visibleFilePdf, setVisibleFilePdf] = useState(false);
-
-  const [groupAccountOpen, setGroupAccountOpen] = useState(false);
-  const groupAccountInputRef = useRef<HTMLInputElement>();
 
   useEffect(() => {
     dispatch(
@@ -73,10 +59,40 @@ const Detail = forwardRef((props: Props, ref) => {
   }, [detail.itemName, dispatch]);
 
   useEffect(() => {
-    if (onLayoutRender) {
-      onLayoutRender();
-    }
+    onLayoutRender?.();
   }, [onLayoutRender]);
+
+  useEffect(() => {
+    if (detail.imagesUrl) {
+      setImagesUrl(detail.imagesUrl);
+    }
+  }, [detail?.imagesUrl, onLayoutRender]);
+
+  const onReloadImages = useCallback(() => {
+    if (loading) {
+      return;
+    }
+
+    onLoading(true);
+
+    toast.promise(
+      dispatch(getAllocationInvoiceImages(detail.itemName))
+        .then((response) => {
+          const payload = response.payload as AxiosResponse;
+          if (payload && payload.data && payload.data.data) {
+            setImagesUrl(payload.data.data);
+          }
+        })
+        .finally(() => {
+          onLoading(false);
+        }),
+      {
+        loading: t('app.system.loading.processing'),
+        success: t('app.system.loading.success'),
+        error: (error) => `${error.message || error || t('app.system.error.message')}`
+      }
+    );
+  }, [detail, dispatch, loading, onLoading, t]);
 
   const onChangeVisibleFilePdf = useCallback(() => {
     if (openSplitPane) {
@@ -87,54 +103,6 @@ const Detail = forwardRef((props: Props, ref) => {
 
     setVisibleFilePdf((prev) => !prev);
   }, [onCloseSplitPane, openSplitPane]);
-
-  const onChangeGroupAccount = useCallback(
-    async (groupAccount: GroupAccountResponse) => {
-      formik.setFieldValue('groupAccount', groupAccount);
-
-      if (onEdited) {
-        onEdited();
-      }
-
-      if (onChange) {
-        onChange({
-          id: detail.id,
-          accountId: groupAccount?.id,
-          accountNo: groupAccount?.accountNo
-        });
-      }
-
-      formik.submitForm();
-
-      setGroupAccountOpen(false);
-    },
-    [detail.id, formik, onChange, onEdited]
-  );
-
-  const onKeyDownGroupAccount = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === 'Enter') {
-        if (onEdited) {
-          onEdited();
-        }
-
-        if (groupAccount) {
-          if (onChange) {
-            onChange({
-              id: detail.id,
-              accountId: groupAccount.id,
-              accountNo: groupAccount.accountNo
-            });
-          }
-        }
-
-        return;
-      }
-
-      setGroupAccountOpen(true);
-    },
-    [detail.id, groupAccount, onChange, onEdited]
-  );
 
   const columns = useColumns(t);
   const columnsOtherGroups = useColumnsOtherGroups(t);
@@ -239,20 +207,13 @@ const Detail = forwardRef((props: Props, ref) => {
               <View flexDirection='row' alignItems='center' gap={1}>
                 <Label sx={{ width: { xs: '30%', md: '10%' } }}>{t('app.allocation.items.info.group-account')}:</Label>
                 <View width='90%'>
-                  <AccountGroupOptions
-                    formik={formik}
-                    open={groupAccountOpen}
-                    inputRef={groupAccountInputRef}
-                    onKeyDown={onKeyDownGroupAccount}
-                    onChangeOpen={setGroupAccountOpen}
-                    onChangeValue={onChangeGroupAccount}
-                  />
+                  <AccountGroupOptions formik={formik} />
                 </View>
               </View>
             </View>
           </Grid>
         </Grid>
-        <RowDetail formik={formik} detail={detail} columns={columns} onChange={onChange} />
+        <RowDetail formik={formik} detail={detail} columns={columns} />
       </View>
       {!openSplitPane && (
         <View flexGrow={1}>

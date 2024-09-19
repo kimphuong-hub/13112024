@@ -22,7 +22,7 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
   {
     width: 120,
     type: 'number',
-    field: 'inProcess',
+    field: 'allocation1',
     headerName: t('app.allocation.items.columns.allocation1'),
     renderCell: CellTotal,
     sortingOrder: ['desc', 'asc', null]
@@ -30,7 +30,7 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
   {
     width: 120,
     type: 'number',
-    field: 'inClarification1',
+    field: 'allocation2',
     headerName: t('app.allocation.items.columns.allocation2'),
     renderCell: CellTotal,
     sortingOrder: ['desc', 'asc', null]
@@ -38,7 +38,7 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
   {
     width: 120,
     type: 'number',
-    field: 'pending',
+    field: 'verification',
     headerName: t('app.allocation.items.columns.verification'),
     renderCell: CellTotal,
     sortingOrder: ['desc', 'asc', null]

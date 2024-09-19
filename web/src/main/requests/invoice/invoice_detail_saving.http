@@ -4,14 +4,17 @@ Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
+  "status": "allocation1",
+  "company_no": 0,
   "data": [
     {
       "id": 11,
+      "invoice_id": 11,
+      "invoice_position_id": 5312,
       "account_id": 10,
       "account_no": "277",
       "system_account_id": 0,
-      "system_account_no": 0,
-      "company_no": 0
+      "system_account_no": 0
     }
   ]
 }

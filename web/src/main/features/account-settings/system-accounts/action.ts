@@ -37,6 +37,21 @@ export const getSystemAccountsByCompanyNo = createAsyncThunk(
   }
 );
 
+export const getSystemCompanyAccountsByCompanyNo = createAsyncThunk(
+  typesAction.GET_SYSTEM_COMPANY_ACCOUNTS_BY_COMPANY_NO_ACTION,
+  async (payload: { companyNo: string }) => {
+    const { companyNo } = payload;
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('company_no', companyNo);
+
+    const queryString = queryParams.toString();
+
+    const response = await axiosRequest.get(`${typesApi.GET_SYSTEM_COMPANY_ACCOUNTS_BY_COMPANY_NO_API}?${queryString}`);
+    return response;
+  }
+);
+
 export const createSystemAccount = createAsyncThunk(
   typesAction.CREATE_SYSTEM_ACCOUNTS_ACTION,
   async (payload: {

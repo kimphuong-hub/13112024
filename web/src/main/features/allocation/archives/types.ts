@@ -28,8 +28,6 @@ export type AllocationArchivesResponse = {
   items: number;
   newItems: number;
 
-  checked: number;
-  inProcess: number;
   exported: number;
 
   lastAllocation: number;

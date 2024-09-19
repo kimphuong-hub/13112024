@@ -132,7 +132,7 @@ const AllocationItemsUpdateScreen = (props: Props) => {
     }
   });
 
-  useAltKeyDoublePress([KeyCode.VALUE_V, KeyCode.VALUE_G, KeyCode.VALUE_H], (event) => {
+  useAltKeyDoublePress([KeyCode.VALUE_V, KeyCode.VALUE_G, KeyCode.VALUE_H, KeyCode.VALUE_SLASH], (event) => {
     event.preventDefault();
 
     if (event.key === KeyCode.VALUE_V) {
@@ -145,6 +145,10 @@ const AllocationItemsUpdateScreen = (props: Props) => {
 
     if (event.key === KeyCode.VALUE_H) {
       setVisibleDrawer(visibleDrawer === 'items-history' ? '' : 'items-history');
+    }
+
+    if (event.key === KeyCode.VALUE_SLASH) {
+      setVisibleDrawer(visibleDrawer === 'send-clarification' ? '' : 'send-clarification');
     }
   });
 
@@ -164,6 +168,7 @@ const AllocationItemsUpdateScreen = (props: Props) => {
             {...(type === 'items' && { onSubmit: mainRef.current?.save })}
             onToggleItemsHistory={() => onToggleDrawer('items-history')}
             onToggleGroupAccounts={() => onToggleDrawer('group-accounts')}
+            onToggleSendClarification={() => onToggleDrawer('send-clarification')}
           />
         ) : null
       }}
@@ -188,6 +193,24 @@ const AllocationItemsUpdateScreen = (props: Props) => {
             </View>
           )}
         </Section>
+        {visibleDrawerDebounce === 'items-history' && (
+          <Drawer
+            anchor='bottom'
+            open={visibleDrawer === 'items-history'}
+            onClose={() => onToggleDrawer('items-history')}
+            slotProps={{ backdrop: { style: { position: 'absolute' } } }}
+            PaperProps={{ style: { position: 'absolute' } }}
+            ModalProps={{
+              style: { position: 'absolute' },
+              container: document.getElementById('drawer-container'),
+              keepMounted: true
+            }}
+          >
+            <Suspense fallback={<LinearProgress />}>
+              <DetailItemsHistory searchValue={allocationItemSelected?.itemName} />
+            </Suspense>
+          </Drawer>
+        )}
         {visibleDrawerDebounce === 'group-accounts' && (
           <Drawer
             anchor='bottom'
@@ -206,11 +229,11 @@ const AllocationItemsUpdateScreen = (props: Props) => {
             </Suspense>
           </Drawer>
         )}
-        {visibleDrawerDebounce === 'items-history' && (
+        {visibleDrawerDebounce === 'send-clarification' && (
           <Drawer
-            anchor='bottom'
-            open={visibleDrawer === 'items-history'}
-            onClose={() => onToggleDrawer('items-history')}
+            anchor='right'
+            open={visibleDrawer === 'send-clarification'}
+            onClose={() => onToggleDrawer('groups-accounts')}
             slotProps={{ backdrop: { style: { position: 'absolute' } } }}
             PaperProps={{ style: { position: 'absolute' } }}
             ModalProps={{
@@ -220,7 +243,7 @@ const AllocationItemsUpdateScreen = (props: Props) => {
             }}
           >
             <Suspense fallback={<LinearProgress />}>
-              <DetailItemsHistory searchValue={allocationItemSelected?.itemName} />
+              {/* <DetailGroupAccounts companyNo={companyNo} groupAccountId={groupAccountSelected?.id} /> */}
             </Suspense>
           </Drawer>
         )}

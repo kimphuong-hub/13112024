@@ -5,11 +5,7 @@ export const flattenSubTree = (items: any[]): any[] => {
 
   const collectIds = (items: any[], parentId = '') => {
     for (const item of items) {
-      result.push({
-        ...item,
-        parents: parentId,
-        children: []
-      });
+      result.push({ ...item, parents: parentId, children: [] });
       if (item.children && item.children.length > 0) {
         collectIds(item.children, `${parentId}-${item.id}`);
       }
@@ -36,7 +32,7 @@ export const getAllIdsSubTree = (items: any[]) => {
   return ids;
 };
 
-export const findSubtreeById = (items: any[], targetId: string): any => {
+export const findSubtreeById = (items: any[], targetId: string | number): any => {
   const findSubTree = (item: any): any | null => {
     if (item.id == targetId) {
       return item;
@@ -55,7 +51,7 @@ export const findSubtreeById = (items: any[], targetId: string): any => {
   return items.map((item) => findSubTree(item)).find((item) => item !== null);
 };
 
-export const findSubtreePathById = (items: any[], targetId: string): string[] => {
+export const findSubtreePathById = (items: any[], targetId: string | number): string[] => {
   const findSubTreePath = (item: any, path: string[] = []): string[] | null => {
     const currentPath = [...path, item.id];
     if (item.id == targetId) {
@@ -75,7 +71,7 @@ export const findSubtreePathById = (items: any[], targetId: string): string[] =>
   return items.map((item) => findSubTreePath(item, [])).find((item) => item !== null) as string[];
 };
 
-export const findSubtreeParentById = (items: any[], targetId: string): any[] => {
+export const findSubtreeParentById = (items: any[], targetId: string | number): any[] => {
   const findSubtreeParent = (account: any): boolean => {
     if (account.id == targetId) {
       return true;
@@ -84,4 +80,23 @@ export const findSubtreeParentById = (items: any[], targetId: string): any[] => 
   };
 
   return items.filter((item) => findSubtreeParent(item));
+};
+
+export const findSubtreeParentFirstById = (items: any[], targetId: string | number): any | null => {
+  let parent: any | null = null;
+
+  const findParent = (accounts: any[]): void => {
+    for (const account of accounts) {
+      if (account.children && account.children.some((child: any) => child.id === targetId)) {
+        parent = account;
+        return;
+      }
+      if (account.children) {
+        findParent(account.children);
+      }
+    }
+  };
+
+  findParent(items);
+  return parent;
 };

@@ -1,25 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AllocationArchivesResponse } from './types';
+import { AllocationArchivesAPI } from './types.api';
 
-export const mappingAllocationArchiveResponse = (item: any): AllocationArchivesResponse => ({
-  reseller: `${item.reseller || ''}`,
+export const mappingAllocationArchiveResponse = (item: AllocationArchivesAPI): AllocationArchivesResponse => ({
+  reseller: String(item.reseller || ''),
 
-  companyNo: `${item.company_no || ''}`,
-  companyName: `${item.company_name || ''}`,
+  companyNo: String(item.company_no || ''),
+  companyName: String(item.company_name || ''),
 
-  invoices: Number(item.invoices),
+  invoices: Number(item.invoices || '0'),
 
-  items: Number(item.items),
-  newItems: Number(item.new_items),
+  items: Number(item.items || '0'),
+  newItems: Number(item.new_items || '0'),
 
-  checked: Number(item.checked),
-  inProcess: Number(item.in_process),
-  exported: Number(item.exported),
+  exported: Number(item.exported || '0'),
 
-  lastAllocation: Number(item.last_allocation),
-  defaultAllocation: Number(item.default_allocation)
+  lastAllocation: Number(item.last_allocation || '0'),
+  defaultAllocation: Number(item.default_allocation || '0')
 });
 
-export const mappingAllocationArchivesResponse = (items: any[]): AllocationArchivesResponse[] => {
+export const mappingAllocationArchivesResponse = (items: AllocationArchivesAPI[]): AllocationArchivesResponse[] => {
   return items.map((item) => mappingAllocationArchiveResponse(item));
 };

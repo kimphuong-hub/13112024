@@ -56,7 +56,7 @@ const GroupSettingsSystemAccountsListScreen = () => {
     getData();
   }, [getData]);
 
-  const onSaveHandle = useCallback(() => {
+  const onHandleSave = useCallback(() => {
     // because we save many group then we need to use Promise.all for many request
     return Promise.all(
       Object.values(accountsChanged).map(({ companyNo, systemAccountNo, companyAccountNo }) => {
@@ -81,7 +81,7 @@ const GroupSettingsSystemAccountsListScreen = () => {
     }
 
     toast.promise(
-      onSaveHandle().then(() => {
+      onHandleSave().then(() => {
         // reload data
         dispatch(getSystemAccountsDetail({ systemAccountId: selected }));
 
@@ -95,7 +95,7 @@ const GroupSettingsSystemAccountsListScreen = () => {
         error: (error) => `${error.message || error || t('app.system.error.message')}`
       }
     );
-  }, [accountsChanged, dispatch, getData, onSaveHandle, selected, t]);
+  }, [accountsChanged, dispatch, getData, onHandleSave, selected, t]);
 
   const accountEditSelected = useMemo(
     () => accounts.find((account) => account.id === editSelected),

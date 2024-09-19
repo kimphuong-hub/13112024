@@ -15,6 +15,6 @@ export const initialValues: FormValues = {
 
 export const validationSchema = (t: TFunction<'translation', undefined>) =>
   yup.object({
-    groupAccount: yup.mixed().required(t('app.allocation.items.info.input.group-account.required')),
+    groupAccount: yup.mixed().required(t('app.allocation.items.info.input.group-account.required')).nullable(),
     systemAccount: yup.mixed().nullable()
   });

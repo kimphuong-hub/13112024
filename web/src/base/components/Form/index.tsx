@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 
 type Props = React.ComponentProps<'form'>;
@@ -8,9 +9,7 @@ export default function Form(props: Props) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (onSubmit) {
-          onSubmit(e);
-        }
+        onSubmit?.(e);
       }}
       {...restProps}
     />

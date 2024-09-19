@@ -1,6 +1,6 @@
 import { FilterType } from '~/core/types';
 import { GroupAccountResponse } from '../../account-settings/group-accounts/types';
-import { SystemAccountResponse } from '../../account-settings/system-accounts/types';
+import { SystemAccountResponse, SystemCompanyAccountResponse } from '../../account-settings/system-accounts/types';
 
 export type AllocationItemsState = {
   items: {
@@ -16,20 +16,6 @@ export type AllocationItemsState = {
         companyName: string;
         status: 'loading' | 'hasValue' | 'hasError';
       };
-    };
-  };
-
-  groupAccountOptions: {
-    [companyNo: string]: {
-      data: GroupAccountResponse[];
-      status: 'loading' | 'hasValue' | 'hasError';
-    };
-  };
-
-  systemAccountOptions: {
-    [companyNo: string]: {
-      data: SystemAccountResponse[];
-      status: 'loading' | 'hasValue' | 'hasError';
     };
   };
 
@@ -49,6 +35,27 @@ export type AllocationItemsState = {
       };
     };
   };
+
+  groupAccountOptions: {
+    [companyNo: string]: {
+      data: GroupAccountResponse[];
+      status: 'loading' | 'hasValue' | 'hasError';
+    };
+  };
+
+  systemAccountOptions: {
+    [companyNo: string]: {
+      data: SystemAccountResponse[];
+      status: 'loading' | 'hasValue' | 'hasError';
+    };
+  };
+
+  systemCompanyAccountOptions: {
+    [companyNo: string]: {
+      data: SystemCompanyAccountResponse[];
+      status: 'loading' | 'hasValue' | 'hasError';
+    };
+  };
 };
 
 export type AllocationItemsResponse = {
@@ -63,18 +70,12 @@ export type AllocationItemsResponse = {
   newItems: number;
 
   checked: number;
-  inProcess: number;
+  allocation1: number;
+  allocation2: number;
+  verification: number;
 
   lastAllocation: number;
   defaultAllocation: number;
-};
-
-export type AllocationItemsDetailChanged = {
-  id?: string;
-  accountId?: string;
-  accountNo?: string;
-  systemAccountId?: string | null;
-  systemAccountNo?: string | null;
 };
 
 export type AllocationItemsDetailResponse = {
@@ -87,13 +88,13 @@ export type AllocationItemsDetailResponse = {
 
   reseller: string;
 
-  accountId: string | null;
-  accountNo: string | null;
-  accountName: string | null;
+  accountId: string;
+  accountNo: string;
+  accountName: string;
 
-  systemAccountId: string | null;
-  systemAccountNo: string | null;
-  systemAccountName: string | null;
+  systemAccountId: string;
+  systemAccountNo: string;
+  systemAccountName: string;
 
   status: string;
   allocationType: string;
@@ -110,7 +111,6 @@ export type AllocationItemsDetailResponse = {
   externalId: string;
   externalDetailId: string;
   externalFilename: string;
-  externalFilenameInvoice: string;
 
   net: number;
   vat: number;
@@ -125,12 +125,24 @@ export type AllocationItemsDetailResponse = {
   pdfUrl: string;
   imagesUrl: string[];
 
+  invoiceId: number;
   invoiceDate: string;
   invoiceNumber: string;
+  invoicePositionId: number;
 
   folderDate: string;
-  createdDate: number;
-  updatedDate: number;
+  createdDate: string;
+  updatedDate: string;
+};
+
+export type AllocationItemsDetailChanged = {
+  id: string;
+  invoiceId?: number;
+  invoicePositionId?: number;
+  accountId?: string;
+  accountNo?: string;
+  systemAccountId?: string | null;
+  systemAccountNo?: string | null;
 };
 
 export type SetAllocationItemsDetailPayload = {

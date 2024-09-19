@@ -1,25 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { v4 as uuidv4 } from 'uuid';
 import { ItemsHistoryResponse } from './types';
+import { ItemsHistoryAPI } from './types.api';
 
-export const mappingItemsHistoryResponse = (item: any): ItemsHistoryResponse => ({
+export const mappingItemsHistoryResponse = (item: ItemsHistoryAPI): ItemsHistoryResponse => ({
   id: uuidv4(),
 
-  itemName: `${item.item_name || ''}`,
+  itemName: String(item.item_name || ''),
 
-  companyNo: `${item.company_no || ''}`,
+  companyNo: String(item.company_no || ''),
 
-  allocationType: `${item.allocation_type || ''}`,
+  allocationType: String(item.allocation_type || ''),
 
-  accountNumber: `${item.account_number || ''}`,
-  accountName: `${item.account_name || ''}`,
-  accountingDate: `${item.accounting_date || ''}`,
+  accountNumber: String(item.account_number || ''),
+  accountName: String(item.account_name || ''),
+  accountingDate: String(item.accounting_date || ''),
 
-  systemAccountName: `${item.system_account_name || ''}`,
+  systemAccountName: String(item.system_account_name || ''),
 
   score: Number(item.score || '0')
 });
 
-export const mappingItemsHistoriesResponse = (items: any[]): ItemsHistoryResponse[] => {
+export const mappingItemsHistoriesResponse = (items: ItemsHistoryAPI[]): ItemsHistoryResponse[] => {
   return items.map((item) => mappingItemsHistoryResponse(item));
 };

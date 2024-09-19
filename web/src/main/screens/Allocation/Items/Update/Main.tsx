@@ -23,7 +23,7 @@ import View from '~/base/components/Material/View';
 import Section from '~/base/components/Material/View/Section';
 import SplitPane from '~/base/components/SplitPane';
 import { GroupAccountResponse } from '~/main/features/account-settings/group-accounts/types';
-import { getAllocationInvoiceImages, saveAllocationItemsDetail } from '~/main/features/allocation/items/action';
+import { saveAllocationItemsDetail } from '~/main/features/allocation/items/action';
 import { allocationItemsAction } from '~/main/features/allocation/items/slice';
 import { AllocationItemsDetailChanged, AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
 import usePromptNotSaved from '~/main/hooks/usePromptChanged';
@@ -61,18 +61,15 @@ const Main = forwardRef((props: Props, ref) => {
   const dispatch = useDispatchApp();
 
   const [loading, setLoading] = useState(false);
-
-  const [isEdited, setIsEdited] = useState(false);
   const [isFirstRowSelected, setFirstRowSelected] = useState(false);
 
   const [initialSizesPane, setInitialSizesPane] = useState([50, 50]);
 
-  const [allocationItemsChanged, setAllocationItemsChanged] = useState<{
+  const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
+
+  const [itemsChanged, setItemsChanged] = useState<{
     [itemId: string]: AllocationItemsDetailChanged;
   }>({});
-
-  const [imagesUrl, setImagesUrl] = useState<string[]>([]);
-  const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
 
   const detailSelected = useMemo(
     () => details.find((detail) => rowSelection.includes(`${detail.id}`)),
@@ -89,84 +86,100 @@ const Main = forwardRef((props: Props, ref) => {
   }, [details, rowSelection]);
 
   const onSave = useCallback(() => {
-    const itemsChanged = Object.values(allocationItemsChanged);
+    if (loading || !status || !companyNo) {
+      return;
+    }
 
-    if (!itemsChanged.length) {
+    const itemsChangedData = Object.values(itemsChanged);
+
+    if (!itemsChangedData.length) {
       toast.error(t('app.system.saved.no-changed'));
       return;
     }
 
-    const isValidChanged = itemsChanged.every((item) => item.accountId && item.accountNo);
-    if (!isValidChanged) {
-      return;
-    }
+    setLoading(true);
 
-    const allocationItems = itemsChanged.map((item) => ({
-      id: item.id || '',
-      account_id: item.accountId || '',
-      account_no: item.accountNo || '',
-      system_account_id: `${item.systemAccountId || 0}`,
-      system_account_no: `${item.systemAccountNo || 0}`,
-      company_no: `${companyNo || ''}`
-    }));
+    const itemsChangedParams = {
+      status,
+      company_no: companyNo,
+      data: itemsChangedData.map((item) => ({
+        id: item.id || '',
+        invoice_id: item.invoiceId || 0,
+        invoice_position_id: item.invoicePositionId || 0,
+        account_id: item.accountId || '',
+        account_no: item.accountNo || '',
+        system_account_id: `${item.systemAccountId || 0}`,
+        system_account_no: `${item.systemAccountNo || 0}`
+      }))
+    };
 
     toast.promise(
-      dispatch(saveAllocationItemsDetail({ data: allocationItems })).then((response) => {
-        const payload = response.payload as AxiosResponse;
-        if (!payload || payload?.data?.status !== HttpStatusCode.Ok) {
-          throw new Error(t('app.system.error.internal-server'));
-        }
+      dispatch(saveAllocationItemsDetail(itemsChangedParams))
+        .then((response) => {
+          const payload = response.payload as AxiosResponse;
+          if (!payload || payload?.data?.status !== HttpStatusCode.Ok) {
+            throw new Error(t('app.system.error.internal-server'));
+          }
 
-        // filter items not change and select first (keep top detail when save)
-        const itemsChangedIds = itemsChanged.map((item) => item.id);
-        const itemsNotChanged = details.filter((item) => !itemsChangedIds.includes(item.id));
-        setRowSelection([`${itemsNotChanged[0].id}`]);
+          // filter items not change and select first (keep top detail when save)
+          const itemsChangedIds = itemsChangedData.map((item) => item.id);
+          const itemsNotChanged = details.filter((item) => !itemsChangedIds.includes(item.id));
+          setRowSelection([`${itemsNotChanged[0].id}`]);
 
-        setAllocationItemsChanged({});
-        getData();
-      }),
+          setItemsChanged({});
+          getData();
+        })
+        .finally(() => {
+          setLoading(false);
+        }),
       {
         loading: t('app.system.loading.saving'),
         success: t('app.system.saved.success'),
         error: (error) => `${error.message || error || t('app.system.error.message')}`
       }
     );
-  }, [allocationItemsChanged, companyNo, details, dispatch, getData, t]);
+  }, [companyNo, details, dispatch, getData, itemsChanged, loading, status, t]);
 
   const onSubmit = useCallback(
     (values: FormValues) => {
-      if (!isEdited || !detailSelected) {
-        onNextItem();
+      const { groupAccount, systemAccount } = values;
+
+      if (!detailSelected || !groupAccount || !systemAccount) {
         return;
       }
 
-      const groupAccount = values.groupAccount;
-      const systemAccount = values.systemAccount;
-
-      if (!groupAccount) {
-        return;
-      }
-
-      const updateDetails = {
+      const itemsChanged = {
+        // set status for UI counter
         status: 'checked',
         accountId: groupAccount.id,
         accountNo: groupAccount.accountNo,
         accountName: groupAccount.accountName,
-        systemAccountId: systemAccount?.id || null,
-        systemAccountNo: systemAccount?.accountNo || null,
-        systemAccountName: systemAccount?.accountName || null
+        systemAccountId: systemAccount.id,
+        systemAccountNo: systemAccount.accountNo,
+        systemAccountName: systemAccount.accountName
       };
 
       dispatch(
         allocationItemsAction.setAllocationItemsDetailById({
-          data: { id: detailSelected.id, details: updateDetails },
-          params: { companyNo, status: status }
+          data: { id: detailSelected.id, details: itemsChanged },
+          params: { companyNo, status }
         })
       );
 
+      setItemsChanged((prev) => ({
+        ...prev,
+        [detailSelected.id]: {
+          ...itemsChanged,
+          id: detailSelected.id,
+          status,
+          invoiceId: detailSelected.invoiceId,
+          invoicePositionId: detailSelected.invoicePositionId
+        }
+      }));
+
       onNextItem();
     },
-    [companyNo, detailSelected, dispatch, isEdited, onNextItem, status]
+    [companyNo, detailSelected, dispatch, onNextItem, status]
   );
 
   const formik = useFormik({
@@ -179,7 +192,7 @@ const Main = forwardRef((props: Props, ref) => {
 
   const columns = useColumns(t);
 
-  const countItemsNew = useMemo(() => details.filter((item) => item.status === 'new').length, [details]);
+  const countItemsNew = useMemo(() => details.filter((item) => item.status === status).length, [details, status]);
 
   useEffect(() => {
     // select first row
@@ -204,8 +217,6 @@ const Main = forwardRef((props: Props, ref) => {
   }, [detailSelected, onSelectAllocationItem]);
 
   useEffect(() => {
-    setIsEdited(false);
-
     if (detailSelected?.accountId) {
       formik.setFieldValue('groupAccount', {
         id: detailSelected.accountId,
@@ -226,62 +237,8 @@ const Main = forwardRef((props: Props, ref) => {
       formik.setFieldValue('systemAccount', null);
     }
 
-    if (detailSelected?.imagesUrl) {
-      setImagesUrl(detailSelected?.imagesUrl);
-    }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailSelected]);
-
-  const onReloadImages = useCallback(() => {
-    if (loading || !detailSelected) {
-      return;
-    }
-
-    setLoading(true);
-
-    toast.promise(
-      dispatch(getAllocationInvoiceImages(detailSelected.itemName))
-        .then((response) => {
-          const payload = response.payload as AxiosResponse;
-          if (payload && payload.data && payload.data.data) {
-            setImagesUrl(payload.data.data);
-          }
-        })
-        .finally(() => {
-          setLoading(false);
-        }),
-      {
-        loading: t('app.system.loading.processing'),
-        success: t('app.system.loading.success'),
-        error: (error) => `${error.message || error || t('app.system.error.message')}`
-      }
-    );
-  }, [detailSelected, dispatch, loading, t]);
-
-  const onChangeDetail = useCallback(
-    (detail: AllocationItemsDetailChanged) => {
-      const dataSelected = {
-        id: detailSelected?.id || '',
-        accountId: detailSelected?.accountId || '',
-        accountNo: detailSelected?.accountNo || '',
-        systemAccountId: detailSelected?.systemAccountId || null,
-        systemAccountNo: detailSelected?.systemAccountNo || null
-      };
-
-      setAllocationItemsChanged((previous) => ({
-        ...previous,
-        [`${dataSelected.id}`]: { ...dataSelected, ...previous[`${dataSelected.id}`], ...detail }
-      }));
-    },
-    [
-      detailSelected?.accountId,
-      detailSelected?.accountNo,
-      detailSelected?.id,
-      detailSelected?.systemAccountId,
-      detailSelected?.systemAccountNo
-    ]
-  );
 
   const onLayoutRenderDetail = useCallback(() => {
     const wrapperHeight = viewRef.current?.clientHeight || 0;
@@ -301,7 +258,7 @@ const Main = forwardRef((props: Props, ref) => {
     };
   }, [onSave]);
 
-  usePromptNotSaved(type === 'items' && Object.values(allocationItemsChanged).length > 0);
+  usePromptNotSaved(type === 'items' && Object.values(itemsChanged).length > 0);
 
   return (
     <View ref={viewRef} flexGrow={1}>
@@ -319,11 +276,9 @@ const Main = forwardRef((props: Props, ref) => {
                 <Detail
                   ref={detailRef}
                   formik={formik}
+                  loading={loading}
                   detail={detailSelected}
-                  imagesUrl={imagesUrl}
-                  onEdited={() => setIsEdited(true)}
-                  onChange={onChangeDetail}
-                  onReloadImages={onReloadImages}
+                  onLoading={setLoading}
                   onLayoutRender={onLayoutRenderDetail}
                   openSplitPane={(sizePane.split('-').map(Number)[1] || 0) !== 0}
                   onCloseSplitPane={() => splitPaneRef.current?.switchPane('close')}

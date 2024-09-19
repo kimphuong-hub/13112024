@@ -60,6 +60,9 @@ const SplitPane = forwardRef((props: SplitPaneProps, ref) => {
         onSwitchPane(status);
       }
 
+      const currentUrl = window.location.href;
+      const searchParams = new URLSearchParams(currentUrl.split('?')[1]);
+
       if (status === 'open') {
         setSizesPane(initialSizesPane);
         searchParams.set('size-pane', initialSizesPane.join('-'));
@@ -74,7 +77,7 @@ const SplitPane = forwardRef((props: SplitPaneProps, ref) => {
         return;
       }
     },
-    [initialSizesPane, initialSizesPaneClose, onSwitchPane, searchParams, setSearchParams, sizesPane]
+    [initialSizesPane, initialSizesPaneClose, onSwitchPane, setSearchParams, sizesPane]
   );
 
   useImperativeHandle(ref, () => {

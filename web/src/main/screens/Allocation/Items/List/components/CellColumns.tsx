@@ -15,12 +15,14 @@ export const CellTotal = (props: GridRenderCellParams) => {
   const onDoubleClick = useCallback(() => {
     const queryParams = new URLSearchParams();
 
-    const fields = {
-      inProcess: 'allocation1',
-      checked: 'checked'
+    const fieldsStatus = {
+      checked: 'checked',
+      allocation1: 'allocation1',
+      allocation2: 'allocation2',
+      verification: 'verification'
     };
 
-    queryParams.append('status', fields[field as keyof typeof fields]);
+    queryParams.append('status', fieldsStatus[field as keyof typeof fieldsStatus]);
 
     const queryString = queryParams.toString();
 

@@ -2,12 +2,18 @@ import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
 import { createSlice } from '@reduxjs/toolkit';
 import { getGroupAccountsByCompanyNo } from '../../account-settings/group-accounts/action';
 import { mappingGroupAccountsResponse } from '../../account-settings/group-accounts/model';
-import { getSystemAccountsByCompanyNo } from '../../account-settings/system-accounts/action';
-import { mappingSystemAccountsResponse } from '../../account-settings/system-accounts/model';
 import { getItemsByGroupAndAccount } from '../../items/action';
 import { getAllocationItems, getAllocationItemsDetail } from './action';
 import { mappingAllocationItemsDetailsResponse, mappingAllocationItemsResponse } from './model';
 import { AllocationItemsState, SetAllocationItemsDetailPayload } from './types';
+import {
+  getSystemAccountsByCompanyNo,
+  getSystemCompanyAccountsByCompanyNo
+} from '../../account-settings/system-accounts/action';
+import {
+  mappingSystemAccountsResponse,
+  mappingSystemCompanyAccountsResponse
+} from '../../account-settings/system-accounts/model';
 
 const initialState: AllocationItemsState = {
   items: {
@@ -18,16 +24,19 @@ const initialState: AllocationItemsState = {
     pagination: { page: 0, pageSize: 25 }
   },
   details: {},
+  groupAccountDrawer: { items: {}, accounts: {} },
   groupAccountOptions: {},
   systemAccountOptions: {},
-  groupAccountDrawer: { items: {}, accounts: {} }
+  systemCompanyAccountOptions: {}
 };
 
-export const initialStateDetails = { data: [], status: 'hasValue' };
-export const initialStateGroupAccountOptions = { data: [], status: 'hasValue' };
-export const initialStateSystemAccountOptions = { data: [], status: 'hasValue' };
-export const initialStateGroupAccountDrawerItems = { data: [], status: 'hasValue' };
-export const initialStateGroupAccountDrawerAccounts = { data: [], status: 'hasValue' };
+export const initialStateData = { data: [], status: 'hasValue' };
+export const initialStateDetails = {
+  data: [],
+  companyNo: 0,
+  companyName: '',
+  status: 'hasValue'
+};
 
 export const allocationItemsSlice = createSlice({
   name: 'allocationItemsSlice',
@@ -76,8 +85,7 @@ export const allocationItemsSlice = createSlice({
       if (findDetailIndex > -1) {
         state.details[params.companyNo][params.status].data[findDetailIndex] = {
           ...state.details[params.companyNo][params.status].data[findDetailIndex],
-          ...details,
-          updatedDate: Date.now()
+          ...details
         };
       }
     }
@@ -104,7 +112,8 @@ export const allocationItemsSlice = createSlice({
         }
 
         state.details[companyNo][status] = {
-          ...(state.details[companyNo][status] || initialStateDetails),
+          ...initialStateDetails,
+          ...state.details[companyNo][status],
           status: 'loading'
         };
       })
@@ -116,7 +125,8 @@ export const allocationItemsSlice = createSlice({
         }
 
         state.details[companyNo][status] = {
-          ...(state.details[companyNo][status] || initialStateDetails),
+          ...initialStateDetails,
+          ...state.details[companyNo][status],
           data: mappingAllocationItemsDetailsResponse(action.payload.data.data || []),
           companyNo: action.payload.data.company_no,
           companyName: action.payload.data.company_name,
@@ -131,7 +141,8 @@ export const allocationItemsSlice = createSlice({
         }
 
         state.details[companyNo][status] = {
-          ...(state.details[companyNo][status] || initialStateDetails),
+          ...initialStateDetails,
+          ...state.details[companyNo][status],
           status: 'hasError'
         };
       });
@@ -140,12 +151,14 @@ export const allocationItemsSlice = createSlice({
         const { companyNo } = action.meta.arg;
 
         state.groupAccountOptions[companyNo] = {
-          ...(state.groupAccountOptions[companyNo] || initialStateGroupAccountOptions),
+          ...initialStateData,
+          ...state.groupAccountOptions[companyNo],
           status: 'loading'
         };
 
         state.groupAccountDrawer.accounts[companyNo] = {
-          ...(state.groupAccountDrawer.accounts[companyNo] || initialStateGroupAccountDrawerAccounts),
+          ...initialStateData,
+          ...state.groupAccountDrawer.accounts[companyNo],
           status: 'loading'
         };
       })
@@ -153,13 +166,15 @@ export const allocationItemsSlice = createSlice({
         const { companyNo } = action.meta.arg;
 
         state.groupAccountOptions[companyNo] = {
-          ...(state.groupAccountOptions[companyNo] || initialStateGroupAccountOptions),
+          ...initialStateData,
+          ...state.groupAccountOptions[companyNo],
           data: mappingGroupAccountsResponse(action.payload.data.data || []),
           status: 'hasValue'
         };
 
         state.groupAccountDrawer.accounts[companyNo] = {
-          ...(state.groupAccountDrawer.accounts[companyNo] || initialStateGroupAccountDrawerAccounts),
+          ...initialStateData,
+          ...state.groupAccountDrawer.accounts[companyNo],
           data: mappingGroupAccountsResponse(action.payload.data.data || []),
           status: 'hasValue'
         };
@@ -168,12 +183,14 @@ export const allocationItemsSlice = createSlice({
         const { companyNo } = action.meta.arg;
 
         state.groupAccountOptions[companyNo] = {
-          ...(state.groupAccountOptions[companyNo] || initialStateGroupAccountOptions),
+          ...initialStateData,
+          ...state.groupAccountOptions[companyNo],
           status: 'hasError'
         };
 
         state.groupAccountDrawer.accounts[companyNo] = {
-          ...(state.groupAccountDrawer.accounts[companyNo] || initialStateGroupAccountDrawerAccounts),
+          ...initialStateData,
+          ...state.groupAccountDrawer.accounts[companyNo],
           status: 'hasError'
         };
       });
@@ -182,7 +199,8 @@ export const allocationItemsSlice = createSlice({
         const { companyNo } = action.meta.arg;
 
         state.systemAccountOptions[companyNo] = {
-          ...(state.systemAccountOptions[companyNo] || initialStateSystemAccountOptions),
+          ...initialStateData,
+          ...state.systemAccountOptions[companyNo],
           status: 'loading'
         };
       })
@@ -192,7 +210,8 @@ export const allocationItemsSlice = createSlice({
         // api wrong, not defined correct
         if (!Array.isArray(action.payload.data)) {
           state.systemAccountOptions[companyNo] = {
-            ...(state.systemAccountOptions[companyNo] || initialStateSystemAccountOptions),
+            ...initialStateData,
+            ...state.systemAccountOptions[companyNo],
             data: [],
             status: 'hasValue'
           };
@@ -200,7 +219,8 @@ export const allocationItemsSlice = createSlice({
         }
 
         state.systemAccountOptions[companyNo] = {
-          ...(state.systemAccountOptions[companyNo] || initialStateSystemAccountOptions),
+          ...initialStateData,
+          ...state.systemAccountOptions[companyNo],
           data: mappingSystemAccountsResponse(action.payload.data || []),
           status: 'hasValue'
         };
@@ -209,7 +229,37 @@ export const allocationItemsSlice = createSlice({
         const { companyNo } = action.meta.arg;
 
         state.systemAccountOptions[companyNo] = {
-          ...(state.systemAccountOptions[companyNo] || initialStateSystemAccountOptions),
+          ...initialStateData,
+          ...state.systemAccountOptions[companyNo],
+          status: 'hasError'
+        };
+      });
+    builder
+      .addCase(getSystemCompanyAccountsByCompanyNo.pending, (state, action) => {
+        const { companyNo } = action.meta.arg;
+
+        state.systemCompanyAccountOptions[companyNo] = {
+          ...initialStateData,
+          ...state.systemCompanyAccountOptions[companyNo],
+          status: 'loading'
+        };
+      })
+      .addCase(getSystemCompanyAccountsByCompanyNo.fulfilled, (state, action) => {
+        const { companyNo } = action.meta.arg;
+
+        state.systemCompanyAccountOptions[companyNo] = {
+          ...initialStateData,
+          ...state.systemCompanyAccountOptions[companyNo],
+          data: mappingSystemCompanyAccountsResponse(action.payload.data || []),
+          status: 'hasValue'
+        };
+      })
+      .addCase(getSystemCompanyAccountsByCompanyNo.rejected, (state, action) => {
+        const { companyNo } = action.meta.arg;
+
+        state.systemCompanyAccountOptions[companyNo] = {
+          ...initialStateData,
+          ...state.systemCompanyAccountOptions[companyNo],
           status: 'hasError'
         };
       });
@@ -222,7 +272,8 @@ export const allocationItemsSlice = createSlice({
         }
 
         state.groupAccountDrawer.items[companyNo][accountNo] = {
-          ...(state.groupAccountDrawer.items[companyNo][accountNo] || initialStateGroupAccountDrawerItems),
+          ...initialStateData,
+          ...state.groupAccountDrawer.items[companyNo][accountNo],
           status: 'loading'
         };
       })
@@ -230,7 +281,8 @@ export const allocationItemsSlice = createSlice({
         const { companyNo, accountNo } = action.meta.arg;
 
         state.groupAccountDrawer.items[companyNo][accountNo] = {
-          ...(state.groupAccountDrawer.items[companyNo][accountNo] || initialStateGroupAccountDrawerItems),
+          ...initialStateData,
+          ...state.groupAccountDrawer.items[companyNo][accountNo],
           data: mappingAllocationItemsDetailsResponse(action.payload.data.data || []),
           status: 'hasValue'
         };
@@ -239,7 +291,8 @@ export const allocationItemsSlice = createSlice({
         const { companyNo, accountNo } = action.meta.arg;
 
         state.groupAccountDrawer.items[companyNo][accountNo] = {
-          ...(state.groupAccountDrawer.items[companyNo][accountNo] || initialStateGroupAccountDrawerItems),
+          ...initialStateData,
+          ...state.groupAccountDrawer.items[companyNo][accountNo],
           status: 'hasError'
         };
       });

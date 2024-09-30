@@ -1,0 +1,5 @@
+@clarification_type = clarification1
+
+GET /clarification/get_category?clarification_type={{clarification_type}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

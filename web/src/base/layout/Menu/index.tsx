@@ -1,6 +1,7 @@
-import { Box, List, Typography } from '@mui/material';
-import MenuList from './List';
+import { List, Typography } from '@mui/material';
+import View from '~/base/components/Material/View';
 import { useSelectorApp } from '~/redux/store';
+import MenuList from './List';
 
 type Props = {
   openDrawer: boolean;
@@ -14,14 +15,14 @@ export default function LayoutMenu(props: Props) {
   return (
     <List component='nav'>
       {openDrawer && (
-        <Box component='main' style={{ padding: '25px 30px' }}>
+        <View component='main' style={{ padding: '25px 30px' }}>
           <Typography variant='subtitle1' fontSize={13} fontWeight={600}>
             {profile?.username}
           </Typography>
           <Typography variant='body1' color='primary' fontSize={12}>
             {profile?.userType}
           </Typography>
-        </Box>
+        </View>
       )}
       <MenuList openDrawer={openDrawer} />
     </List>

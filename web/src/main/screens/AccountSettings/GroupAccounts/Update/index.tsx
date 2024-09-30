@@ -48,7 +48,7 @@ const GroupSettingsGroupsAccountsUpdateScreen = () => {
   const searchValue = searchParams.get('q') ?? '';
 
   const sizePane = searchParams.get('size-pane') || '';
-  const filterAllAccounts = searchParams.get('filter-all-accounts') === 'true';
+  const filterAllAccounts = searchParams.get('filter-all-accounts') === 'open';
 
   const dispatch = useDispatchApp();
   const details = useSelectorApp((state) => state.accountSettings.groupAccounts.details);
@@ -317,7 +317,7 @@ const GroupSettingsGroupsAccountsUpdateScreen = () => {
           <Section style={{ padding: 10 }} flexGrow={1}>
             <SplitPane
               ref={splitPaneRef}
-              loading={isLoaded}
+              hideSashContent={!isLoaded}
               initialSizesPane={[70, 30]}
               initialSizesPaneClose={[100, 0]}
             >

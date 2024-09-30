@@ -26,9 +26,12 @@ export const initialValues: FormValues = {
 
 export const validationSchema = (t: TFunction<'translation', undefined>) =>
   yup.object({
-    email: yup.string().email(t('app.input.email.invalid')).required(t('app.input.email.required')),
-    firstName: yup.string().required(t('app.input.first-name.required')),
-    lastName: yup.string().required(t('app.input.last-name.required')),
-    displayName: yup.string().required(t('app.input.display-name.required')),
+    email: yup
+      .string()
+      .email(t('app.profile.master-data.input.email.invalid'))
+      .required(t('app.profile.master-data.input.email.required')),
+    firstName: yup.string().required(t('app.profile.master-data.input.first-name.required')),
+    lastName: yup.string().required(t('app.profile.master-data.input.last-name.required')),
+    displayName: yup.string().required(t('app.profile.master-data.input.display-name.required')),
     userType: yup.string()
   });

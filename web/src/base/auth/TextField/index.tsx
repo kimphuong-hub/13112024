@@ -8,7 +8,7 @@ type Props = TextFieldProps & {
   icon: string;
 };
 
-export default function LayoutAuthTextField(props: Props) {
+const LayoutAuthTextField = (props: Props) => {
   const { icon, ...restProps } = props;
 
   return (
@@ -55,4 +55,6 @@ export default function LayoutAuthTextField(props: Props) {
       />
     </View>
   );
-}
+};
+
+export default LayoutAuthTextField;

@@ -1,4 +1,4 @@
-import { Box, TableBody, TableHead, TableRow, useTheme } from '@mui/material';
+import { TableBody, TableHead, TableRow, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Typography from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
@@ -11,8 +11,8 @@ const HelpsAboutScreen = () => {
 
   return (
     <LayoutWrapper title={t('app.title.helps.about')} breadcrumbs={{ title: t('app.breadcrumb.helps.about') }}>
-      <Box p='20px' flexGrow={1}>
-        <Box
+      <View p='20px' flexGrow={1}>
+        <View
           width='450px'
           border='1px solid #B5C3CE'
           p='20px'
@@ -89,8 +89,8 @@ const HelpsAboutScreen = () => {
             </TableBody>
           </TableStyled>
           <Typography>https://www.cisbox.com</Typography>
-        </Box>
-      </Box>
+        </View>
+      </View>
     </LayoutWrapper>
   );
 };

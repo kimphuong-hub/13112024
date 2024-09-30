@@ -8,13 +8,15 @@ import { useColumns } from './common/columns';
 
 type Props = {
   name?: string;
+  hideTopBar?: boolean;
+
   companyNo?: string | number;
   searchValue?: string;
   onSearchValue?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 };
 
 const ItemsHistory = (props: Props) => {
-  const { name, companyNo = 0, searchValue = '', onSearchValue } = props;
+  const { name, hideTopBar = false, companyNo = 0, searchValue = '', onSearchValue } = props;
 
   const { t } = useTranslation();
 
@@ -33,7 +35,7 @@ const ItemsHistory = (props: Props) => {
 
   return (
     <>
-      <TopBar searchValue={searchValue} onSearchValue={onSearchValue} />
+      {!hideTopBar && <TopBar searchValue={searchValue} onSearchValue={onSearchValue} />}
       <DataGrid
         name={name}
         rows={itemsHistory}

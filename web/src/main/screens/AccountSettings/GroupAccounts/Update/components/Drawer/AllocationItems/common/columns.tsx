@@ -25,7 +25,7 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
   },
   {
     flex: 1,
-    field: 'customerName',
+    field: 'supplierName',
     headerName: t('app.allocation.items.info.columns.supplier')
   }
 ];

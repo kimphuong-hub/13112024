@@ -1,4 +1,4 @@
-import { Box, Collapse, Divider } from '@mui/material';
+import { Collapse, Divider } from '@mui/material';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
@@ -72,13 +72,13 @@ export const FormFilter = (props: Props) => {
   }, [onClose, onDeleteSearchParams]);
 
   return (
-    <Box>
+    <View>
       <View gap={1}>
         <Divider />
         <Collapse in={!open}>
           <View flexDirection='row' gap={1}>
             <Chip
-              label={`${t('app.allocation.archives.filter.date-range')}: ${moment(fromDate).format('DD-MM-YY')} -> ${moment(toDate).format('DD-MM-YY')}`}
+              label={`${t('app.allocation.archives.filter.date-range')}: ${moment(fromDate).format('DD-MM-YY')} ⮕ ${moment(toDate).format('DD-MM-YY')}`}
               size='small'
             />
           </View>
@@ -114,6 +114,6 @@ export const FormFilter = (props: Props) => {
           </View>
         </View>
       </Collapse>
-    </Box>
+    </View>
   );
 };

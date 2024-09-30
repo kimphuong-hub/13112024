@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosRequest } from '~/core/api';
 import { FilterType } from '~/core/types';
 import { typesAction, typesApi } from './const';
+import { ClarificationStatusType, CommentClarificationPayload, ReplyClarificationPayload } from './types';
 
 export const getAllocationItems = createAsyncThunk(
   typesAction.GET_ALLOCATION_ITEMS_ACTION,
@@ -31,16 +32,9 @@ export const getAllocationItemsDetail = createAsyncThunk(
     const { sort = 'asc', field = '' } = sortModel?.[0] || {};
     const { page = 0, pageSize = 1000 } = pagination || {};
 
-    const fieldsStatus = {
-      checked: 'checked',
-      allocation1: 'allocation1',
-      allocation2: 'allocation2',
-      verification: 'verification'
-    };
-
     const queryParams = new URLSearchParams();
     queryParams.append('group_no', companyNo);
-    queryParams.append('status', fieldsStatus[status as keyof typeof fieldsStatus]);
+    queryParams.append('status', status);
     queryParams.append('to_date', toDate);
     queryParams.append('from_date', fromDate);
     queryParams.append('keyword', search);
@@ -52,6 +46,19 @@ export const getAllocationItemsDetail = createAsyncThunk(
     const queryString = queryParams.toString();
 
     const response = await axiosRequest.get(`${typesApi.GET_ALLOCATION_ITEMS_DETAIL_API}?${queryString}`);
+    return response;
+  }
+);
+
+export const getAllocationInvoiceImages = createAsyncThunk(
+  typesAction.GET_ALLOCATION_INVOICE_IMAGES_ACTION,
+  async (itemName: string) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('item_name', itemName);
+
+    const queryString = queryParams.toString();
+
+    const response = await axiosRequest.get(`${typesApi.GET_ALLOCATION_INVOICE_IMAGES_API}?${queryString}`);
     return response;
   }
 );
@@ -76,15 +83,45 @@ export const saveAllocationItemsDetail = createAsyncThunk(
   }
 );
 
-export const getAllocationInvoiceImages = createAsyncThunk(
-  typesAction.GET_ALLOCATION_INVOICE_IMAGES_ACTION,
-  async (itemName: string) => {
+export const getClarificationComments = createAsyncThunk(
+  typesAction.GET_CLARIFICATION_GET_COMMENTS_ACTION,
+  async ({ invoiceId, status }: { invoiceId: string; status: string }) => {
     const queryParams = new URLSearchParams();
-    queryParams.append('item_name', itemName);
+    queryParams.append('status', status);
+    queryParams.append('invoice_account_id', invoiceId);
 
     const queryString = queryParams.toString();
 
-    const response = await axiosRequest.get(`${typesApi.GET_ALLOCATION_INVOICE_IMAGES_API}?${queryString}`);
+    const response = await axiosRequest.get(`${typesApi.GET_CLARIFICATION_GET_COMMENTS_API}?${queryString}`);
+    return response;
+  }
+);
+
+export const getClarificationCategories = createAsyncThunk(
+  typesAction.GET_CLARIFICATION_GET_CATEGORIES_ACTION,
+  async ({ type }: { type: ClarificationStatusType }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('clarification_type', type);
+
+    const queryString = queryParams.toString();
+
+    const response = await axiosRequest.get(`${typesApi.GET_CLARIFICATION_GET_CATEGORIES_API}?${queryString}`);
+    return response;
+  }
+);
+
+export const replyClarification = createAsyncThunk(
+  typesAction.REPLY_CLARIFICATION_ACTION,
+  async (payload: ReplyClarificationPayload) => {
+    const response = await axiosRequest.post(`${typesApi.REPLY_CLARIFICATION_API}`, payload);
+    return response;
+  }
+);
+
+export const commentClarification = createAsyncThunk(
+  typesAction.COMMENT_CLARIFICATION_ACTION,
+  async (payload: CommentClarificationPayload) => {
+    const response = await axiosRequest.post(`${typesApi.COMMENT_CLARIFICATION_API}`, payload);
     return response;
   }
 );

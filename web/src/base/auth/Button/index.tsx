@@ -3,7 +3,7 @@ import Button from '~/base/components/Material/Button';
 
 type Props = ButtonProps;
 
-export default function LayoutAuthButton(props: Props) {
+const LayoutAuthButton = (props: Props) => {
   return (
     <Button
       sx={{
@@ -28,4 +28,6 @@ export default function LayoutAuthButton(props: Props) {
       {...props}
     />
   );
-}
+};
+
+export default LayoutAuthButton;

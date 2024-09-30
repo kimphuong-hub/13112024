@@ -37,30 +37,3 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
     }
   ];
 };
-
-export const useColumnsOtherGroups = (t: TFunction<'translation', undefined>): GridColDef[] => {
-  return [
-    {
-      flex: 1,
-      minWidth: 100,
-      field: 'itemName',
-      headerName: t('app.allocation.items.history.columns.item-name')
-    },
-    {
-      width: 150,
-      field: 'accountNumber',
-      headerName: t('app.allocation.items.history.columns.account-number')
-    },
-    {
-      width: 300,
-      field: 'accountName',
-      headerName: t('app.allocation.items.history.columns.account-name')
-    },
-    {
-      flex: 1,
-      minWidth: 100,
-      field: 'systemAccountName',
-      headerName: t('app.allocation.items.history.columns.global-account')
-    }
-  ];
-};

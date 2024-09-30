@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -11,25 +11,46 @@ import Tooltip from '~/base/components/Material/Tooltip';
 import Typography from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
 import { DEBOUNCE_SEARCH_TIMER } from '~/core/config/debounce';
+import { QueryStringParams } from './common/params';
 
 const TopBar = () => {
   const theme = useTheme();
   const { t } = useTranslation();
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const typeValue = searchParams.get('type') ?? '';
   const searchValue = searchParams.get('q') ?? '';
-  const filterAllAccounts = searchParams.get('filter-all-accounts') === 'true';
+  const filterAllAccounts = searchParams.get('filter-all-accounts') ?? '';
+  const filterAllAccountsStatus = filterAllAccounts === 'open';
 
-  const onFilterAllAccounts = useCallback(() => {
-    if (filterAllAccounts) {
-      searchParams.delete('filter-all-accounts');
-      setSearchParams(searchParams);
-      return;
+  const onFilterAllAccounts = useCallback(
+    (status?: 'open' | 'close') => {
+      if (!status) {
+        if (!filterAllAccountsStatus) {
+          status = 'open';
+        } else {
+          status = 'close';
+        }
+      }
+
+      if (status === 'open') {
+        searchParams.set('filter-all-accounts', 'open');
+        setSearchParams(searchParams);
+      }
+
+      if (status === 'close') {
+        searchParams.set('filter-all-accounts', 'close');
+        setSearchParams(searchParams);
+      }
+    },
+    [filterAllAccountsStatus, searchParams, setSearchParams]
+  );
+
+  useEffect(() => {
+    if (typeValue === QueryStringParams.type.totalAccountUnMapped && filterAllAccounts === '') {
+      onFilterAllAccounts('open');
     }
-
-    searchParams.set('filter-all-accounts', 'true');
-    setSearchParams(searchParams);
-  }, [filterAllAccounts, searchParams, setSearchParams]);
+  }, [filterAllAccounts, onFilterAllAccounts, searchParams, typeValue]);
 
   const onSearchModelChange = useDebouncedCallback((event) => {
     const searchValue = event.target.value.trim();
@@ -77,9 +98,9 @@ const TopBar = () => {
           </Filter.Button>
         </Tooltip>
         <Tooltip title={t('app.account-settings.global-accounts.toggle-filter-all-accounts')}>
-          <Filter.Button color='secondary' onClick={onFilterAllAccounts}>
+          <Filter.Button color='secondary' onClick={() => onFilterAllAccounts()}>
             <FontAwesomeIcon
-              icon={`fa-regular fa-filter${filterAllAccounts ? '' : '-slash'}`}
+              icon={`fa-regular fa-filter${filterAllAccountsStatus ? '' : '-slash'}`}
               size={12}
               color={theme.palette.common.white}
             />

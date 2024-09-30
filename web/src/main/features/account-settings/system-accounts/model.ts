@@ -51,7 +51,7 @@ export const mappingSystemCompanyAccountResponse = (
   accountNoCount: Number(item.account_no_count || '0'),
 
   isGroupAccount: !item.account_no_count,
-  isContainGroupAccount: !(item.children || []).some((item) => !item.account_no_count),
+  countGroupAccounts: (item.children || []).filter((item) => !item.account_no_count).length,
 
   children: mappingSystemCompanyAccountsResponse(item.children || [])
 });

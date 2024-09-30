@@ -1,7 +1,8 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 
-type Props = React.ComponentProps<'form'>;
+type Props = React.ComponentProps<'form'> & {
+  onSubmit: (e: React.FormEvent) => void;
+};
 
 export default function Form(props: Props) {
   const { onSubmit, ...restProps } = props;

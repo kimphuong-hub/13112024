@@ -95,7 +95,7 @@ export const FormFilter = (props: Props) => {
   );
 
   return (
-    <Box>
+    <View>
       <View gap={1}>
         <Divider />
         <Collapse in={!open}>
@@ -108,7 +108,7 @@ export const FormFilter = (props: Props) => {
               />
             )}
             <Chip
-              label={`${t('app.allocation.archives.filter.date-range')}: ${moment(fromDate).format('DD-MM-YY')} -> ${moment(toDate).format('DD-MM-YY')}`}
+              label={`${t('app.allocation.archives.filter.date-range')}: ${moment(fromDate).format('DD-MM-YY')} ⮕ ${moment(toDate).format('DD-MM-YY')}`}
               size='small'
             />
           </View>
@@ -182,6 +182,6 @@ export const FormFilter = (props: Props) => {
           </View>
         </View>
       </Collapse>
-    </Box>
+    </View>
   );
 };

@@ -4,7 +4,7 @@ import { FormikHelpers, useFormik } from 'formik';
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { Alert } from '~/base/components/Material/Alert';
+import Alert from '~/base/components/Material/Alert';
 import BoxInput from '~/base/components/Material/Box/Input';
 import Label from '~/base/components/Material/Form/Label';
 import TextField from '~/base/components/Material/Form/TextField';
@@ -34,18 +34,18 @@ const ProfileChangePasswordScreen = () => {
             const { result } = payload.data;
             if (result === 'Fail') {
               formik.setFieldValue('previousPassword', '');
-              throw new Error('Your previous password not correct');
+              throw new Error(t('app.profile.change-password.previous-password.not-correct'));
             }
           }),
           {
-            loading: 'Loading...',
-            success: 'Change password success!',
+            loading: t('app.system.loading.processing'),
+            success: t('app.system.loading.success'),
             error: (error) => `${error.message || error}`
           }
         )
         .then(() => formik.resetForm());
     },
-    [dispatch]
+    [dispatch, t]
   );
 
   const formik = useFormik({
@@ -68,15 +68,15 @@ const ProfileChangePasswordScreen = () => {
             <Grid item xs={12} lg={6}>
               <View gap={2}>
                 <BoxInput>
-                  <Label style={{ width: '30%' }}>{t('app.input.first-name.label')}</Label>
+                  <Label style={{ width: '30%' }}>{t('app.profile.master-data.input.first-name.label')}</Label>
                   <TextField name='firstName' value={profile?.firstName} disabled />
                 </BoxInput>
                 <BoxInput>
-                  <Label style={{ width: '30%' }}>{t('app.input.last-name.label')}</Label>
+                  <Label style={{ width: '30%' }}>{t('app.profile.master-data.input.last-name.label')}</Label>
                   <TextField name='lastName' value={profile?.lastName} disabled />
                 </BoxInput>
                 <BoxInput>
-                  <Label style={{ width: '30%' }}>{t('app.input.previous-password.label')}</Label>
+                  <Label style={{ width: '30%' }}>{t('app.profile.master-data.input.previous-password.label')}</Label>
                   <TextField
                     type='password'
                     name='previousPassword'
@@ -88,7 +88,7 @@ const ProfileChangePasswordScreen = () => {
                   />
                 </BoxInput>
                 <BoxInput>
-                  <Label style={{ width: '30%' }}>{t('app.input.new-password.label')}</Label>
+                  <Label style={{ width: '30%' }}>{t('app.profile.master-data.input.new-password.label')}</Label>
                   <TextField
                     type='password'
                     name='newPassword'
@@ -100,7 +100,9 @@ const ProfileChangePasswordScreen = () => {
                   />
                 </BoxInput>
                 <BoxInput>
-                  <Label style={{ width: '30%' }}>{t('app.input.new-password-repetition.label')}</Label>
+                  <Label style={{ width: '30%' }}>
+                    {t('app.profile.master-data.input.new-password-repetition.label')}
+                  </Label>
                   <TextField
                     type='password'
                     name='reNewPassword'

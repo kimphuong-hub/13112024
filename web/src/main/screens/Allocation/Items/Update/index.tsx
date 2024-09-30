@@ -13,11 +13,14 @@ import { BreadcrumbRoute } from '~/const/route/types';
 import { GroupAccountResponse } from '~/main/features/account-settings/group-accounts/types';
 import { getAllocationArchivesDetail } from '~/main/features/allocation/archives/action';
 import { getAllocationItemsDetail } from '~/main/features/allocation/items/action';
-import { AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
+import { AllocationItemsDetailChanged, AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
 import { useAltKeyDoublePress, useKeyPress } from '~/main/hooks/useKeyPress';
 import { useDispatchApp, useSelectorApp } from '~/redux/store';
 import Main from './Main';
+import { allowedStatus } from './common/config';
+import DetailSendClarification from './components/Drawer/SendClarification';
 import { FormAction } from './components/FormAction';
+import { SelectedContextProvider } from './contexts/selected';
 
 const DetailItemsHistory = lazy(() => import('./components/Drawer/ItemsHistory'));
 const DetailGroupAccounts = lazy(() => import('./components/Drawer/GroupAccounts'));
@@ -30,14 +33,19 @@ const AllocationItemsUpdateScreen = (props: Props) => {
   const { type = 'items' } = props;
   const { t } = useTranslation();
 
-  const { companyNo = '' } = useParams();
+  const { companyNo } = useParams();
 
   const [searchParams] = useSearchParams();
-  const status = searchParams.get('status') || '';
-  const toDate = searchParams.get('to-date') || moment().format('YYYY-MM-DD');
-  const fromDate = searchParams.get('from-date') || moment().day(-7).format('YYYY-MM-DD');
+  const status = searchParams.get('status') ?? '';
+  const toDate = searchParams.get('to-date') ?? moment().format('YYYY-MM-DD');
+  const fromDate = searchParams.get('from-date') ?? moment().day(-7).format('YYYY-MM-DD');
 
-  const mainRef = useRef<{ save: () => void; toggleVisibleFilePdf: () => void }>(null);
+  const mainRef = useRef<{
+    save: () => void;
+    submitForm: () => void;
+    toggleVisibleFilePdf: () => void;
+    onFirstRowSelected: (status: boolean) => void;
+  }>(null);
   const splitPaneRef = useRef<{ sizesPane: number[]; switchPane: (status?: 'open' | 'close') => void }>(null);
 
   const dispatch = useDispatchApp();
@@ -49,12 +57,12 @@ const AllocationItemsUpdateScreen = (props: Props) => {
     let companyName = '';
 
     if (type === 'items') {
-      const items = allocation.items.details?.[companyNo]?.[status] || {};
+      const items = allocation.items.details?.[companyNo ?? '']?.[status] ?? {};
       details = items.data;
       companyName = items.companyName;
       detailsStatus = items.status;
     } else if (type === 'archives') {
-      const archives = allocation.archives.details?.[companyNo] || {};
+      const archives = allocation.archives.details?.[companyNo ?? ''] ?? {};
       details = archives.data;
       companyName = archives.companyName;
       detailsStatus = archives.status;
@@ -65,29 +73,36 @@ const AllocationItemsUpdateScreen = (props: Props) => {
 
   const { details, detailsStatus, companyName } = allocation;
 
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const [visibleDrawer, setVisibleDrawer] = useState('');
   const [visibleDrawerDebounce] = useDebounce(visibleDrawer, 100);
 
-  const [groupAccountSelected, setGroupAccountSelected] = useState<GroupAccountResponse | null>(null);
-  const [allocationItemSelected, setAllocationItemSelected] = useState<AllocationItemsDetailResponse | null>(null);
+  const [groupAccount, setGroupAccount] = useState<GroupAccountResponse | null>(null);
+  const [allocationItem, setAllocationItem] = useState<AllocationItemsDetailResponse | null>(null);
 
-  const getData = useCallback(() => {
-    if (!companyNo) {
-      return;
-    }
+  const [itemsChanged, setItemsChanged] = useState<{ [itemId: string]: AllocationItemsDetailChanged }>({});
 
-    if (type === 'items' && status) {
-      dispatch(getAllocationItemsDetail({ status, companyNo })).then(() => {
-        setIsLoaded(true);
-      });
-    } else if (type === 'archives' && toDate && fromDate) {
-      dispatch(getAllocationArchivesDetail({ toDate, fromDate, companyNo })).then(() => {
-        setIsLoaded(true);
-      });
-    }
-  }, [companyNo, dispatch, fromDate, status, toDate, type]);
+  const getData = useCallback(
+    (callback?: () => void) => {
+      if (!companyNo) {
+        return;
+      }
+
+      if (type === 'items' && status) {
+        dispatch(getAllocationItemsDetail({ status, companyNo })).then(() => {
+          setLoaded(true);
+          callback?.();
+        });
+      } else if (type === 'archives' && toDate && fromDate) {
+        dispatch(getAllocationArchivesDetail({ toDate, fromDate, companyNo })).then(() => {
+          setLoaded(true);
+          callback?.();
+        });
+      }
+    },
+    [companyNo, dispatch, fromDate, status, toDate, type]
+  );
 
   useEffect(() => {
     getData();
@@ -97,12 +112,44 @@ const AllocationItemsUpdateScreen = (props: Props) => {
     setVisibleDrawer((prev) => (prev === name ? '' : name));
   }, []);
 
+  const onToggleSendClarification = useCallback(() => {
+    if (!allocationItem) {
+      return;
+    }
+
+    if (!groupAccount) {
+      mainRef.current?.submitForm();
+    }
+
+    onToggleDrawer('send-clarification');
+  }, [allocationItem, groupAccount, onToggleDrawer]);
+
+  const onSendCommentClarification = useCallback(
+    (referenceIds: string[]) => {
+      if (!companyNo || !allocationItem) {
+        return;
+      }
+
+      Object.values(itemsChanged).forEach((item) => {
+        if (item.id === allocationItem.id || referenceIds.includes(item.id)) {
+          delete itemsChanged[item.id];
+        }
+      });
+
+      getData(() => {
+        onToggleDrawer('send-clarification');
+        mainRef.current?.onFirstRowSelected(false);
+      });
+    },
+    [allocationItem, companyNo, getData, itemsChanged, onToggleDrawer]
+  );
+
   const wrapperParams = useMemo(() => {
     const statusTitle = status
       .split('-')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join('');
-    const companyTitle = `${companyNo || ''}${companyName ? ` - ${companyName}` : ''}`;
+    const companyTitle = `${companyNo ?? ''}${companyName ? ` - ${companyName}` : ''}`;
 
     let breadcrumbsLastItems: BreadcrumbRoute[] = [];
     if (type === 'items') {
@@ -148,11 +195,15 @@ const AllocationItemsUpdateScreen = (props: Props) => {
     }
 
     if (event.key === KeyCode.VALUE_SLASH) {
-      setVisibleDrawer(visibleDrawer === 'send-clarification' ? '' : 'send-clarification');
+      onToggleSendClarification();
     }
   });
 
-  if ((type === 'items' && !status) || (type === 'archives' && (!toDate || !fromDate)) || (isLoaded && !companyName)) {
+  if (
+    (type === 'items' && !allowedStatus.includes(status)) ||
+    (type === 'archives' && (!toDate || !fromDate)) ||
+    (loaded && !companyName)
+  ) {
     return <LayoutNotFound />;
   }
 
@@ -163,91 +214,97 @@ const AllocationItemsUpdateScreen = (props: Props) => {
         title: t('app.breadcrumb.allocation'),
         loading: detailsStatus === 'loading',
         lastItems: wrapperParams.breadcrumbsLastItems,
-        rightComponent: isLoaded ? (
+        rightComponent: loaded ? (
           <FormAction
             {...(type === 'items' && { onSubmit: mainRef.current?.save })}
             onToggleItemsHistory={() => onToggleDrawer('items-history')}
             onToggleGroupAccounts={() => onToggleDrawer('group-accounts')}
-            onToggleSendClarification={() => onToggleDrawer('send-clarification')}
+            onToggleSendClarification={onToggleSendClarification}
           />
         ) : null
       }}
     >
-      <View id='drawer-container' position='relative' p='20px' flexGrow={1} gap={2}>
-        <Section style={{ padding: 10 }} flexGrow={1}>
-          {isLoaded && (
-            <Main
-              ref={mainRef}
-              type={type}
-              getData={getData}
-              details={details}
-              detailsStatus={detailsStatus}
-              splitPaneRef={splitPaneRef}
-              onSelectGroupAccount={setGroupAccountSelected}
-              onSelectAllocationItem={setAllocationItemSelected}
-            />
+      <SelectedContextProvider value={{ groupAccount, setGroupAccount, allocationItem, setAllocationItem }}>
+        <View id='drawer-container' position='relative' p='20px' flexGrow={1} gap={2}>
+          <Section style={{ padding: 10 }} flexGrow={1}>
+            {loaded && (
+              <Main
+                ref={mainRef}
+                type={type}
+                getData={getData}
+                details={details}
+                detailsStatus={detailsStatus}
+                itemsChanged={itemsChanged}
+                onItemsChanged={setItemsChanged}
+                splitPaneRef={splitPaneRef}
+              />
+            )}
+            {!loaded && (
+              <View flexGrow={1} alignItems='center' justifyContent='center'>
+                <CircularProgress />
+              </View>
+            )}
+          </Section>
+          {visibleDrawerDebounce === 'items-history' && (
+            <Drawer
+              anchor='bottom'
+              open={visibleDrawer === 'items-history'}
+              onClose={() => onToggleDrawer('items-history')}
+              slotProps={{ backdrop: { style: { position: 'absolute' } } }}
+              PaperProps={{ style: { position: 'absolute' } }}
+              ModalProps={{
+                style: { position: 'absolute' },
+                container: document.getElementById('drawer-container'),
+                keepMounted: true
+              }}
+            >
+              <Suspense fallback={<LinearProgress />}>
+                <DetailItemsHistory searchValue={allocationItem?.itemName} />
+              </Suspense>
+            </Drawer>
           )}
-          {!isLoaded && (
-            <View flexGrow={1} alignItems='center' justifyContent='center'>
-              <CircularProgress />
-            </View>
+          {visibleDrawerDebounce === 'group-accounts' && (
+            <Drawer
+              anchor='bottom'
+              open={visibleDrawer === 'group-accounts'}
+              onClose={() => onToggleDrawer('groups-accounts')}
+              slotProps={{ backdrop: { style: { position: 'absolute' } } }}
+              PaperProps={{ style: { position: 'absolute' } }}
+              ModalProps={{
+                style: { position: 'absolute' },
+                container: document.getElementById('drawer-container'),
+                keepMounted: true
+              }}
+            >
+              <Suspense fallback={<LinearProgress />}>
+                <DetailGroupAccounts companyNo={companyNo} groupAccountId={groupAccount?.id} />
+              </Suspense>
+            </Drawer>
           )}
-        </Section>
-        {visibleDrawerDebounce === 'items-history' && (
-          <Drawer
-            anchor='bottom'
-            open={visibleDrawer === 'items-history'}
-            onClose={() => onToggleDrawer('items-history')}
-            slotProps={{ backdrop: { style: { position: 'absolute' } } }}
-            PaperProps={{ style: { position: 'absolute' } }}
-            ModalProps={{
-              style: { position: 'absolute' },
-              container: document.getElementById('drawer-container'),
-              keepMounted: true
-            }}
-          >
-            <Suspense fallback={<LinearProgress />}>
-              <DetailItemsHistory searchValue={allocationItemSelected?.itemName} />
-            </Suspense>
-          </Drawer>
-        )}
-        {visibleDrawerDebounce === 'group-accounts' && (
-          <Drawer
-            anchor='bottom'
-            open={visibleDrawer === 'group-accounts'}
-            onClose={() => onToggleDrawer('groups-accounts')}
-            slotProps={{ backdrop: { style: { position: 'absolute' } } }}
-            PaperProps={{ style: { position: 'absolute' } }}
-            ModalProps={{
-              style: { position: 'absolute' },
-              container: document.getElementById('drawer-container'),
-              keepMounted: true
-            }}
-          >
-            <Suspense fallback={<LinearProgress />}>
-              <DetailGroupAccounts companyNo={companyNo} groupAccountId={groupAccountSelected?.id} />
-            </Suspense>
-          </Drawer>
-        )}
-        {visibleDrawerDebounce === 'send-clarification' && (
-          <Drawer
-            anchor='right'
-            open={visibleDrawer === 'send-clarification'}
-            onClose={() => onToggleDrawer('groups-accounts')}
-            slotProps={{ backdrop: { style: { position: 'absolute' } } }}
-            PaperProps={{ style: { position: 'absolute' } }}
-            ModalProps={{
-              style: { position: 'absolute' },
-              container: document.getElementById('drawer-container'),
-              keepMounted: true
-            }}
-          >
-            <Suspense fallback={<LinearProgress />}>
-              {/* <DetailGroupAccounts companyNo={companyNo} groupAccountId={groupAccountSelected?.id} /> */}
-            </Suspense>
-          </Drawer>
-        )}
-      </View>
+          {visibleDrawerDebounce === 'send-clarification' && (
+            <Drawer
+              anchor='right'
+              open={visibleDrawer === 'send-clarification'}
+              onClose={onToggleSendClarification}
+              slotProps={{ backdrop: { style: { position: 'absolute' } } }}
+              PaperProps={{ style: { position: 'absolute' } }}
+              ModalProps={{
+                style: { position: 'absolute' },
+                container: document.getElementById('drawer-container'),
+                keepMounted: true
+              }}
+            >
+              <Suspense fallback={<LinearProgress />}>
+                <DetailSendClarification
+                  details={details}
+                  itemsChanged={itemsChanged}
+                  onSendComment={onSendCommentClarification}
+                />
+              </Suspense>
+            </Drawer>
+          )}
+        </View>
+      </SelectedContextProvider>
     </LayoutWrapper>
   );
 };

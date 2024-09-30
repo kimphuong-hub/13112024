@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import LayoutAuthButton from '~/base/auth/Button';
 import LayoutAuthTextField from '~/base/auth/TextField';
 import Form from '~/base/components/Form';
-import { Alert } from '~/base/components/Material/Alert';
+import Alert from '~/base/components/Material/Alert';
 import { TypographySecondary } from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
 import authActionApi from '~/main/features/auth/action';

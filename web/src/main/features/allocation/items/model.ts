@@ -1,5 +1,15 @@
-import { AllocationItemsDetailResponse, AllocationItemsResponse } from './types';
-import { AllocationItemsAPI, AllocationItemsDetailAPI } from './types.api';
+import {
+  AllocationItemsDetailResponse,
+  AllocationItemsResponse,
+  ClarificationCategoryResponse,
+  ClarificationCommentResponse
+} from './types';
+import {
+  AllocationItemsAPI,
+  AllocationItemsDetailAPI,
+  ClarificationCategoryAPI,
+  ClarificationCommentAPI
+} from './types.api';
 
 export const mappingAllocationItemResponse = (item: AllocationItemsAPI): AllocationItemsResponse => ({
   reseller: String(item.reseller || ''),
@@ -13,9 +23,12 @@ export const mappingAllocationItemResponse = (item: AllocationItemsAPI): Allocat
   newItems: Number(item.new_items || '0'),
 
   checked: Number(item.checked || '0'),
+  unsettled: Number(item.unsettled || '0'),
   allocation1: Number(item.allocation1 || '0'),
   allocation2: Number(item.allocation2 || '0'),
   verification: Number(item.verification || '0'),
+  clarification1: Number(item.clarification1 || '0'),
+  clarification2: Number(item.clarification1 || '0'),
 
   lastAllocation: Number(item.last_allocation || '0'),
   defaultAllocation: Number(item.default_allocation || '0')
@@ -50,7 +63,7 @@ export const mappingAllocationItemsDetailResponse = (item: AllocationItemsDetail
 
     itemName: String(item.item_name || ''),
     itemNameVI: String(item.item_name_vi || ''),
-    itemNumber: String(item.item_number || ''),
+    itemNumber: String(item.item_number || item.item_no || ''),
     itemDescription: String(item.item_description || ''),
 
     reseller: String(item.reseller),
@@ -62,6 +75,13 @@ export const mappingAllocationItemsDetailResponse = (item: AllocationItemsDetail
     systemAccountId,
     systemAccountNo,
     systemAccountName,
+
+    clarificationDate: String(item.clarification_date || ''),
+    clarificationComment: String(item.clarification_comment || ''),
+    clarificationUsername: String(item.clarification_username || ''),
+    clarificationReplyDate: String(item.reply_date || ''),
+    clarificationReplyComment: String(item.reply_comment || ''),
+    clarificationReplyUsername: String(item.reply_username || ''),
 
     status: String(item.status || ''),
     allocationType: String(item.allocation_type || ''),
@@ -90,7 +110,7 @@ export const mappingAllocationItemsDetailResponse = (item: AllocationItemsDetail
     score: Number(item.score || '0'),
     isOpen: String(item.is_open || ''),
     pdfUrl: String(item.pdf_url || ''),
-    imagesUrl: item.image_url,
+    imagesUrl: Array.isArray(item.image_url) ? item.image_url : [],
 
     invoiceId: Number(item.invoice_id || '0'),
     invoiceDate: String(item.invoice_date || ''),
@@ -107,4 +127,36 @@ export const mappingAllocationItemsDetailsResponse = (
   items: AllocationItemsDetailAPI[]
 ): AllocationItemsDetailResponse[] => {
   return items.map((item) => mappingAllocationItemsDetailResponse(item));
+};
+
+export const mappingClarificationCommentResponse = (item: ClarificationCommentAPI): ClarificationCommentResponse => ({
+  id: String(item.id),
+
+  date: String(item.clarification_date || ''),
+  user: String(item.clarification_user_id || ''),
+  comment: String(item.clarification_comment || ''),
+  replyUser: String(item.reply_user_id || ''),
+  replyComment: String(item.reply_comment || '')
+});
+
+export const mappingClarificationCommentsResponse = (
+  items: ClarificationCommentAPI[]
+): ClarificationCommentResponse[] => {
+  return items.map((item) => mappingClarificationCommentResponse(item));
+};
+
+export const mappingClarificationCategoryResponse = (
+  item: ClarificationCategoryAPI
+): ClarificationCategoryResponse => ({
+  id: String(item.id),
+
+  name: String(item.clarification_name || ''),
+  type: String(item.clarification_type || ''),
+  isDefault: item.is_default === 1
+});
+
+export const mappingClarificationCategoriesResponse = (
+  items: ClarificationCategoryAPI[]
+): ClarificationCategoryResponse[] => {
+  return items.map((item) => mappingClarificationCategoryResponse(item));
 };

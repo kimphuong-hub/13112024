@@ -1,23 +1,32 @@
 import { useTheme } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
-import { FormikProps } from 'formik';
-import { useMemo, useState } from 'react';
+import { useFormikContext } from 'formik';
+import { useCallback, useContext, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import FontAwesomeIcon from '~/base/components/Icon/FontAwesome';
+import Button from '~/base/components/Material/Button';
 import Typography from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
-import { AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
+import { allowedStatusCheckSystemAccount } from '../../common/config';
 import { FormValues } from '../../common/form';
-import AccountSystemOptions from './AccountSystemOptions';
+import AccountSystemOptions from './Options/AccountSystemOptions';
+import { SelectedContext } from '../../contexts/selected';
 
 type RowDetailProps = {
-  formik: FormikProps<FormValues>;
-  detail: AllocationItemsDetailResponse;
   columns: GridColDef[];
+  onNextItem: () => void;
 };
 
 const RowDetail = (props: RowDetailProps) => {
-  const { formik, detail, columns } = props;
+  const { columns, onNextItem } = props;
 
   const theme = useTheme();
+
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get('status') || '';
+
+  const { touched, errors, submitForm } = useFormikContext<FormValues>();
+  const { allocationItem } = useContext(SelectedContext);
 
   const columnWidthStorage = JSON.parse(localStorage.getItem('DataGridColumnWidth') || '{}');
   const [columnWidth] = useState<{ [key: string]: number }>(columnWidthStorage['allocation.items.update']);
@@ -25,6 +34,11 @@ const RowDetail = (props: RowDetailProps) => {
   const borderStyle =
     theme.palette.mode === 'dark' ? '1px solid rgba(81, 81, 81, 1)' : '1px solid rgba(224, 224, 224, 1)';
   const backgroundColor = theme.palette.mode === 'dark' ? '#1E1E1E' : '#FAFAFA';
+
+  const onCheckSystemAccount = useCallback(() => {
+    submitForm();
+    onNextItem();
+  }, [onNextItem, submitForm]);
 
   const columnsProxy = useMemo(
     () =>
@@ -42,7 +56,15 @@ const RowDetail = (props: RowDetailProps) => {
   );
 
   return (
-    <View mr='5px' style={{ border: borderStyle }}>
+    <View
+      mr='5px'
+      style={{
+        border: borderStyle,
+        ...(!(touched.systemAccount && Boolean(errors.systemAccount)) && {
+          marginBottom: '20px'
+        })
+      }}
+    >
       <View
         flexGrow={1}
         flexDirection='row'
@@ -70,22 +92,31 @@ const RowDetail = (props: RowDetailProps) => {
       </View>
       <View flexGrow={1} flexDirection='row' justifyContent='space-between'>
         <RowDetailItem columns={columnsProxy} columnName='itemNumber'>
-          {detail.itemNumber}
+          {allocationItem?.itemNumber}
         </RowDetailItem>
         <RowDetailItem columns={columnsProxy} columnName='itemName'>
-          {detail.itemName}
+          {allocationItem?.itemName}
         </RowDetailItem>
         <RowDetailItem columns={columnsProxy} columnName='unit'>
-          {detail.unit}
+          {allocationItem?.unit}
         </RowDetailItem>
         <RowDetailItem columns={columnsProxy} columnName='net'>
-          {detail.net}
+          {allocationItem?.net}
         </RowDetailItem>
         <RowDetailItem columns={columnsProxy} columnName='vat'>
-          {detail.vat}
+          {allocationItem?.vat}
         </RowDetailItem>
         <RowDetailItem columns={columnsProxy} columnName='systemAccountName'>
-          <AccountSystemOptions sx={{ display: 'flex' }} formik={formik} />
+          <View flexDirection='row' alignItems='center' gap={1}>
+            <AccountSystemOptions sx={{ display: 'flex' }} onNextItem={onNextItem} />
+            {allowedStatusCheckSystemAccount.includes(status) && (
+              <View>
+                <Button color='warning' onClick={onCheckSystemAccount}>
+                  <FontAwesomeIcon icon='fa-regular fa-check' size={11} color={theme.palette.common.white} />
+                </Button>
+              </View>
+            )}
+          </View>
         </RowDetailItem>
       </View>
     </View>

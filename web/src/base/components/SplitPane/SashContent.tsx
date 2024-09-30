@@ -1,7 +1,7 @@
-import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { SashContent as SashContentDefault } from 'split-pane-react';
 import Tooltip from '~/base/components/Material/Tooltip';
+import View from '../Material/View';
 
 type Props = {
   open: boolean;
@@ -16,29 +16,27 @@ export default function SashContent(props: Props) {
   const { t } = useTranslation();
 
   return (
-    <Box
-      display='flex'
-      justifyContent={split === 'vertical' ? 'start' : 'center'}
-      alignItems='center'
-      flexDirection={split === 'vertical' ? 'row' : 'column'}
+    <View
       width='100%'
       height='100%'
       bgcolor='#E0E0E0'
+      flexDirection={split === 'vertical' ? 'row' : 'column'}
+      justifyContent={split === 'vertical' ? 'start' : 'center'}
+      alignItems='center'
     >
       <SashContentDefault />
-      <Box
-        display='flex'
-        justifyContent={split === 'vertical' ? 'start' : 'center'}
-        alignItems='center'
-        flexDirection={split === 'vertical' ? 'row' : 'column'}
-        position='absolute'
-        {...(split === 'vertical' ? {} : { bottom: open ? '0' : '4px' })}
+      <View
         width={split === 'vertical' ? '5px' : '100%'}
         height={split === 'vertical' ? '100%' : '5px'}
         bgcolor='#E0E0E0'
+        position='absolute'
+        alignItems='center'
+        flexDirection={split === 'vertical' ? 'row' : 'column'}
+        justifyContent={split === 'vertical' ? 'start' : 'center'}
+        {...(split === 'vertical' ? {} : { bottom: open ? '0' : '4px' })}
       >
         <Tooltip title={title || t('app.system.split-pane.sash.tooltip')}>
-          <Box
+          <View
             style={{
               ...(split === 'vertical'
                 ? {
@@ -60,7 +58,7 @@ export default function SashContent(props: Props) {
             onClick={onSwitch}
           />
         </Tooltip>
-      </Box>
-    </Box>
+      </View>
+    </View>
   );
 }

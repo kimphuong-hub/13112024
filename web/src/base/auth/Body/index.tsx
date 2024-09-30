@@ -12,7 +12,7 @@ import { useDispatchApp, useSelectorApp } from '~/redux/store';
 
 type Props = BoxProps;
 
-export default function LayoutAuthBody(props: Props) {
+const LayoutAuthBody = (props: Props) => {
   const { children } = props;
 
   const { t } = useTranslation();
@@ -184,4 +184,6 @@ export default function LayoutAuthBody(props: Props) {
       </View>
     </View>
   );
-}
+};
+
+export default LayoutAuthBody;

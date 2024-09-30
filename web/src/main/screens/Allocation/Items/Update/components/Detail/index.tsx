@@ -1,50 +1,54 @@
 import { Grid } from '@mui/material';
 import { AxiosResponse } from 'axios';
-import { FormikProps } from 'formik';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import FontAwesomeIcon from '~/base/components/Icon/FontAwesome';
 import IconButton from '~/base/components/Material/Button/Icon';
-import DataGrid from '~/base/components/Material/DataGrid';
 import TextField from '~/base/components/Material/Form/TextField';
 import Tooltip from '~/base/components/Material/Tooltip';
 import Typography from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
+import ItemsHistory from '~/main/components/Items/History';
 import { getAllocationInvoiceImages } from '~/main/features/allocation/items/action';
-import { AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
 import { getItemsHistory } from '~/main/features/items/action';
 import { useDispatchApp, useSelectorApp } from '~/redux/store';
-import { useColumns, useColumnsOtherGroups } from '../../common/columns';
-import { FormValues } from '../../common/form';
+import { useColumns } from '../../common/columns';
+import { allowedStatusReplyClarification } from '../../common/config';
+import { SelectedContext } from '../../contexts/selected';
 import { ItemValue, Label } from '../Typography';
-import AccountGroupOptions from './AccountGroupOptions';
+import AccountGroupOptions from './Options/AccountGroupOptions';
+import ReplyClarification from './ReplyClarification';
 import RowDetail from './RowDetail';
+import { useFormikContext } from 'formik';
+import { FormValues } from '../../common/form';
 
 type Props = {
-  formik: FormikProps<FormValues>;
-  detail: AllocationItemsDetailResponse;
   loading: boolean;
   onLoading: (status: boolean) => void;
+  onNextItem: () => void;
   onLayoutRender?: () => void;
   openSplitPane: boolean;
   onCloseSplitPane?: () => void;
 };
 
 const Detail = forwardRef((props: Props, ref) => {
-  const { formik, detail, loading, onLoading, onLayoutRender, openSplitPane, onCloseSplitPane } = props;
+  const { loading, onLoading, onNextItem, onLayoutRender, openSplitPane, onCloseSplitPane } = props;
 
   const { t } = useTranslation();
+
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get('status') || '';
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useDispatchApp();
   const common = useSelectorApp((state) => state.common);
-  const defaultItemsHistory = useSelectorApp((state) => state.items.history);
-
   const { language } = common;
-  const { data: itemsHistory = [], status } = defaultItemsHistory['0'] || {};
+
+  const { setFieldValue } = useFormikContext<FormValues>();
+  const { allocationItem } = useContext(SelectedContext);
 
   const [imagesUrl, setImagesUrl] = useState<string[]>([]);
   const [visibleFilePdf, setVisibleFilePdf] = useState(false);
@@ -53,20 +57,42 @@ const Detail = forwardRef((props: Props, ref) => {
     dispatch(
       getItemsHistory({
         group_nr: 0,
-        items: [{ item_name: detail.itemName, item_vat: 0 }]
+        items: [{ item_name: allocationItem?.itemName || '', item_vat: 0 }]
       })
     );
-  }, [detail.itemName, dispatch]);
+  }, [allocationItem?.itemName, dispatch]);
 
   useEffect(() => {
     onLayoutRender?.();
   }, [onLayoutRender]);
 
   useEffect(() => {
-    if (detail.imagesUrl) {
-      setImagesUrl(detail.imagesUrl);
+    if (allocationItem?.imagesUrl) {
+      setImagesUrl(allocationItem?.imagesUrl);
     }
-  }, [detail?.imagesUrl, onLayoutRender]);
+  }, [allocationItem?.imagesUrl, onLayoutRender]);
+
+  useEffect(() => {
+    if (allocationItem?.accountId) {
+      setFieldValue('groupAccount', {
+        id: allocationItem.accountId,
+        accountNo: allocationItem.accountNo,
+        accountName: allocationItem.accountName
+      });
+    } else {
+      setFieldValue('groupAccount', null);
+    }
+
+    if (allocationItem?.systemAccountId) {
+      setFieldValue('systemAccount', {
+        id: allocationItem.systemAccountId,
+        accountNo: allocationItem.systemAccountNo,
+        accountName: allocationItem.systemAccountName
+      });
+    } else {
+      setFieldValue('systemAccount', null);
+    }
+  }, [allocationItem, setFieldValue]);
 
   const onReloadImages = useCallback(() => {
     if (loading) {
@@ -76,7 +102,7 @@ const Detail = forwardRef((props: Props, ref) => {
     onLoading(true);
 
     toast.promise(
-      dispatch(getAllocationInvoiceImages(detail.itemName))
+      dispatch(getAllocationInvoiceImages(allocationItem?.itemName || ''))
         .then((response) => {
           const payload = response.payload as AxiosResponse;
           if (payload && payload.data && payload.data.data) {
@@ -92,7 +118,7 @@ const Detail = forwardRef((props: Props, ref) => {
         error: (error) => `${error.message || error || t('app.system.error.message')}`
       }
     );
-  }, [detail, dispatch, loading, onLoading, t]);
+  }, [allocationItem, dispatch, loading, onLoading, t]);
 
   const onChangeVisibleFilePdf = useCallback(() => {
     if (openSplitPane) {
@@ -105,7 +131,6 @@ const Detail = forwardRef((props: Props, ref) => {
   }, [onCloseSplitPane, openSplitPane]);
 
   const columns = useColumns(t);
-  const columnsOtherGroups = useColumnsOtherGroups(t);
 
   useImperativeHandle(ref, () => {
     return {
@@ -123,25 +148,25 @@ const Detail = forwardRef((props: Props, ref) => {
               <View flexDirection='row' gap={3}>
                 <Label width='70px'>{t('app.allocation.items.info.supplier')}:</Label>
                 <ItemValue minHeight={38}>
-                  {detail.supplierNo ? `(${detail.supplierNo}) ` : ''}
-                  {detail.supplierName}
+                  {allocationItem?.supplierNo ? `(${allocationItem?.supplierNo}) ` : ''}
+                  {allocationItem?.supplierName}
                 </ItemValue>
               </View>
               <View flexDirection='row' gap={3}>
                 <Label width='70px'>{t('app.allocation.items.info.customer')}:</Label>
                 <ItemValue minHeight={38}>
-                  {detail.customerNo ? `(${detail.customerNo}) ` : ''}
-                  {detail.customerName}
+                  {allocationItem?.customerNo ? `(${allocationItem?.customerNo}) ` : ''}
+                  {allocationItem?.customerName}
                 </ItemValue>
               </View>
               <View flexDirection='row' gap={3}>
                 <Label width='70px'>{t('app.allocation.items.info.invoice-number')}:</Label>
-                <ItemValue>{detail.invoiceNumber}</ItemValue>
+                <ItemValue>{allocationItem?.invoiceNumber}</ItemValue>
               </View>
               <View flexDirection='row' alignItems='center' gap={3}>
                 <Label width='70px'>{t('app.allocation.items.info.filename')}:</Label>
                 <ItemValue display='flex' flexDirection='row' alignItems='center' gap={2}>
-                  {detail.externalFilename}
+                  {allocationItem?.externalFilename}
                   <Tooltip title={t('app.allocation.items.info.button.file-pdf.tooltip')}>
                     <IconButton onClick={onChangeVisibleFilePdf}>
                       <FontAwesomeIcon icon='fa-solid fa-file-pdf' size={15} />
@@ -187,7 +212,7 @@ const Detail = forwardRef((props: Props, ref) => {
                     title={`${t('app.allocation.items.info.button.translate.tooltip')} (${language?.toUpperCase()})`}
                   >
                     <Link
-                      to={`https://translate.google.com/?sl=auto&tl=${language}&text=${encodeURI(detail.itemName)}&op=translate`}
+                      to={`https://translate.google.com/?sl=auto&tl=${language}&text=${encodeURI(allocationItem?.itemName || '')}&op=translate`}
                       target='_blank'
                       rel='noopener noreferrer'
                     >
@@ -201,34 +226,32 @@ const Detail = forwardRef((props: Props, ref) => {
                   </Label>
                 </View>
                 <View gap={3}>
-                  <TextField multiline maxRows={4} value={detail.itemNameVI} />
+                  <TextField maxRows={4} multiline value={allocationItem?.itemNameVI} />
                 </View>
               </View>
               <View flexDirection='row' alignItems='center' gap={1}>
                 <Label sx={{ width: { xs: '30%', md: '10%' } }}>{t('app.allocation.items.info.group-account')}:</Label>
                 <View width='90%'>
-                  <AccountGroupOptions formik={formik} />
+                  <AccountGroupOptions />
                 </View>
               </View>
             </View>
           </Grid>
         </Grid>
-        <RowDetail formik={formik} detail={detail} columns={columns} />
+        <RowDetail columns={columns} onNextItem={onNextItem} />
       </View>
       {!openSplitPane && (
         <View flexGrow={1}>
           {visibleFilePdf && (
             <View flexGrow={1}>
-              <iframe src={detail.pdfUrl} style={{ flexGrow: 1, border: 0 }} />
+              <iframe src={allocationItem?.pdfUrl} style={{ flexGrow: 1, border: 0 }} />
             </View>
           )}
           {!visibleFilePdf && (
-            <DataGrid
-              rows={itemsHistory}
-              columns={columnsOtherGroups}
-              getRowId={(row) => row.id}
-              loading={status === 'loading'}
-            />
+            <View flexGrow={1} gap={2}>
+              <ItemsHistory searchValue={allocationItem?.itemName} hideTopBar />
+              {allowedStatusReplyClarification.includes(status) && <ReplyClarification />}
+            </View>
           )}
         </View>
       )}

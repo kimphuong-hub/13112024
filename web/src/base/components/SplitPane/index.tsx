@@ -4,11 +4,11 @@ import DefaultSplitPane from 'split-pane-react/esm/SplitPane';
 import SashContent from './SashContent';
 
 type SplitPaneProps = Omit<React.ComponentProps<typeof DefaultSplitPane>, 'sizes' | 'sashRender' | 'onChange'> & {
-  sashRender?: (index: number, active: boolean) => React.ReactNode;
   onChange?: (sizes: number[]) => void;
   onSwitchPane?: (status: 'open' | 'close') => void;
 
-  loading: boolean;
+  sashRender?: (index: number, active: boolean) => React.ReactNode;
+  hideSashContent: boolean;
   initialSizesPane: number[];
   initialSizesPaneClose: number[];
 };
@@ -16,10 +16,10 @@ type SplitPaneProps = Omit<React.ComponentProps<typeof DefaultSplitPane>, 'sizes
 const SplitPane = forwardRef((props: SplitPaneProps, ref) => {
   const {
     split = 'vertical',
-    sashRender,
     onChange,
     onSwitchPane,
-    loading,
+    sashRender,
+    hideSashContent = false,
     initialSizesPane,
     initialSizesPaneClose,
     ...restProps
@@ -97,9 +97,9 @@ const SplitPane = forwardRef((props: SplitPaneProps, ref) => {
         if (sashRender) {
           sashRender(index, active);
         }
-        return loading ? (
-          <SashContent open={sizesPane[1] > 0} split={split} onSwitch={() => onSwitchPaneProxy()} />
-        ) : null;
+        return (
+          !hideSashContent && <SashContent open={sizesPane[1] > 0} split={split} onSwitch={() => onSwitchPaneProxy()} />
+        );
       }}
       onChange={onChangeProxy}
       {...restProps}

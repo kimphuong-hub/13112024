@@ -1,4 +1,4 @@
-import { Box, LinearProgress, useTheme } from '@mui/material';
+import { LinearProgress, useTheme } from '@mui/material';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -7,7 +7,7 @@ import Filter from '~/base/components/Filter';
 import FontAwesomeIcon from '~/base/components/Icon/FontAwesome';
 import Button from '~/base/components/Material/Button';
 import TextField from '~/base/components/Material/Form/TextField';
-import { RichTreeView } from '~/base/components/Material/RichTreeView';
+import RichTreeView from '~/base/components/Material/RichTreeView';
 import Tooltip from '~/base/components/Material/Tooltip';
 import Typography from '~/base/components/Material/Typography';
 import View from '~/base/components/Material/View';
@@ -310,8 +310,8 @@ const AccountTree = (props: Props) => {
         </View>
         {status === 'loading' && <LinearProgress />}
       </View>
-      <Box ref={viewRef} display='flex' flexDirection='column' flexGrow={1} gap={2}>
-        <Box flexGrow={1} style={{ height: (viewRef.current?.clientHeight || 200) - 100 }} overflow='auto' gap={2}>
+      <View ref={viewRef} flexGrow={1} gap={2}>
+        <View flexGrow={1} style={{ height: (viewRef.current?.clientHeight || 200) - 100 }} overflow='auto' gap={2}>
           <RichTreeView
             slots={{ item: TreeItemSearch }}
             items={accountsData}
@@ -326,8 +326,8 @@ const AccountTree = (props: Props) => {
               <Typography style={{ fontSize: '0.875rem' }}>{t('app.system.grid.no-rows')}</Typography>
             </View>
           )}
-        </Box>
-      </Box>
+        </View>
+      </View>
       <SystemAccountsCreateDialog
         open={visibleCreateDialog}
         onClose={() => onChangeVisibleCreateDialog(false)}

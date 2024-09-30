@@ -15,12 +15,12 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
   },
   {
     flex: 1,
-    minWidth: 300,
+    minWidth: 150,
     field: 'companyName',
     headerName: t('app.allocation.items.columns.group-name')
   },
   {
-    width: 120,
+    width: 100,
     type: 'number',
     field: 'allocation1',
     headerName: t('app.allocation.items.columns.allocation1'),
@@ -28,7 +28,7 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
     sortingOrder: ['desc', 'asc', null]
   },
   {
-    width: 120,
+    width: 100,
     type: 'number',
     field: 'allocation2',
     headerName: t('app.allocation.items.columns.allocation2'),
@@ -36,7 +36,7 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
     sortingOrder: ['desc', 'asc', null]
   },
   {
-    width: 120,
+    width: 100,
     type: 'number',
     field: 'verification',
     headerName: t('app.allocation.items.columns.verification'),
@@ -44,7 +44,23 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
     sortingOrder: ['desc', 'asc', null]
   },
   {
-    width: 120,
+    width: 100,
+    type: 'number',
+    field: 'clarification1',
+    headerName: t('app.allocation.items.columns.clarification1'),
+    renderCell: CellTotal,
+    sortingOrder: ['desc', 'asc', null]
+  },
+  {
+    width: 90,
+    type: 'number',
+    field: 'unsettled',
+    headerName: t('app.allocation.items.columns.unsettled'),
+    renderCell: CellTotal,
+    sortingOrder: ['desc', 'asc', null]
+  },
+  {
+    width: 90,
     type: 'number',
     field: 'checked',
     headerName: t('app.allocation.items.columns.checked'),
@@ -52,14 +68,14 @@ export const useColumns = (t: TFunction<'translation', undefined>): GridColDef[]
     sortingOrder: ['desc', 'asc', null]
   },
   {
-    width: 120,
+    width: 90,
     type: 'number',
     field: 'invoices',
     headerName: t('app.allocation.items.columns.invoices'),
     sortingOrder: ['desc', 'asc', null]
   },
   {
-    width: 120,
+    width: 90,
     type: 'number',
     field: 'items',
     headerName: t('app.allocation.items.columns.items'),

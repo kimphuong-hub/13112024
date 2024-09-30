@@ -1,13 +1,14 @@
 import { LinearProgress } from '@mui/material';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
 import { AxiosResponse, HttpStatusCode } from 'axios';
-import { useFormik } from 'formik';
+import { Formik, FormikProps } from 'formik';
 import {
   RefObject,
   Suspense,
   forwardRef,
   lazy,
   useCallback,
+  useContext,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -22,30 +23,35 @@ import DataGrid from '~/base/components/Material/DataGrid';
 import View from '~/base/components/Material/View';
 import Section from '~/base/components/Material/View/Section';
 import SplitPane from '~/base/components/SplitPane';
-import { GroupAccountResponse } from '~/main/features/account-settings/group-accounts/types';
-import { saveAllocationItemsDetail } from '~/main/features/allocation/items/action';
+import { replyClarification, saveAllocationItemsDetail } from '~/main/features/allocation/items/action';
 import { allocationItemsAction } from '~/main/features/allocation/items/slice';
-import { AllocationItemsDetailChanged, AllocationItemsDetailResponse } from '~/main/features/allocation/items/types';
+import {
+  AllocationItemsDetailChanged,
+  AllocationItemsDetailResponse,
+  ReplyClarificationPayload
+} from '~/main/features/allocation/items/types';
 import usePromptNotSaved from '~/main/hooks/usePromptChanged';
 import { useDispatchApp } from '~/redux/store';
 import TopBar from './TopBar';
 import { useColumns } from './common/columns';
-import { FormValues, initialValues, validationSchema } from './common/form';
+import { allowedStatusReplyClarification } from './common/config';
+import { FormValues, getFormKeyNames, initialValues, validationSchema } from './common/form';
+import { SelectedContext } from './contexts/selected';
 
 type Props = {
   type: 'items' | 'archives';
-  getData: () => void;
+  getData: (callback?: () => void) => void;
   details: AllocationItemsDetailResponse[];
   detailsStatus: string;
+  itemsChanged: { [itemId: string]: AllocationItemsDetailChanged };
+  onItemsChanged: (itemsChanged: { [itemId: string]: AllocationItemsDetailChanged }) => void;
   splitPaneRef: RefObject<{ sizesPane: number[]; switchPane: (status?: 'open' | 'close') => void }>;
-  onSelectGroupAccount: (groupAccount: GroupAccountResponse | null) => void;
-  onSelectAllocationItem: (allocationItem: AllocationItemsDetailResponse | null) => void;
 };
 
 const Detail = lazy(() => import('./components/Detail'));
 
 const Main = forwardRef((props: Props, ref) => {
-  const { type, getData, details, detailsStatus, splitPaneRef, onSelectGroupAccount, onSelectAllocationItem } = props;
+  const { type, getData, details, detailsStatus, itemsChanged, onItemsChanged, splitPaneRef } = props;
 
   const { companyNo = '' } = useParams();
 
@@ -57,77 +63,48 @@ const Main = forwardRef((props: Props, ref) => {
 
   const viewRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<{ containerHeight: number; toggleVisibleFilePdf: () => void }>(null);
+  const formikRef = useRef<FormikProps<FormValues> | null>(null);
+
+  const { allocationItem, setAllocationItem, setGroupAccount } = useContext(SelectedContext);
 
   const dispatch = useDispatchApp();
 
   const [loading, setLoading] = useState(false);
+  const [initialSizesPane, setInitialSizesPane] = useState([50, 50]);
   const [isFirstRowSelected, setFirstRowSelected] = useState(false);
 
-  const [initialSizesPane, setInitialSizesPane] = useState([50, 50]);
-
-  const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
-
-  const [itemsChanged, setItemsChanged] = useState<{
-    [itemId: string]: AllocationItemsDetailChanged;
-  }>({});
-
-  const detailSelected = useMemo(
-    () => details.find((detail) => rowSelection.includes(`${detail.id}`)),
-    [details, rowSelection]
-  );
-
-  const onNextItem = useCallback(() => {
-    const currentIndex = details.findIndex((detail) => rowSelection.includes(detail.id));
-    if (currentIndex < details.length - 1) {
-      setRowSelection([`${details[currentIndex + 1].id}`]);
-    } else {
-      setRowSelection([`${details[0].id}`]);
-    }
-  }, [details, rowSelection]);
-
-  const onSave = useCallback(() => {
-    if (loading || !status || !companyNo) {
-      return;
-    }
-
-    const itemsChangedData = Object.values(itemsChanged);
-
-    if (!itemsChangedData.length) {
-      toast.error(t('app.system.saved.no-changed'));
-      return;
-    }
-
+  const onReply = useCallback(() => {
     setLoading(true);
 
-    const itemsChangedParams = {
+    const values = Object.values(itemsChanged);
+    const replyParams: ReplyClarificationPayload = {
       status,
       company_no: companyNo,
-      data: itemsChangedData.map((item) => ({
-        id: item.id || '',
-        invoice_id: item.invoiceId || 0,
-        invoice_position_id: item.invoicePositionId || 0,
-        account_id: item.accountId || '',
-        account_no: item.accountNo || '',
-        system_account_id: `${item.systemAccountId || 0}`,
-        system_account_no: `${item.systemAccountNo || 0}`
+      data: values.map((item) => ({
+        id: item.id,
+        invoice_id: item.invoiceId,
+        invoice_position_id: item.invoicePositionId,
+        account_id: item.accountId,
+        account_no: item.accountNo,
+        system_account_id: item.systemAccountId,
+        system_account_no: item.systemAccountNo,
+        next_status: item.replyStatus,
+        reply: item.replyComment
       }))
     };
 
     toast.promise(
-      dispatch(saveAllocationItemsDetail(itemsChangedParams))
+      dispatch(replyClarification(replyParams))
         .then((response) => {
           const payload = response.payload as AxiosResponse;
           if (!payload || payload?.data?.status !== HttpStatusCode.Ok) {
             throw new Error(t('app.system.error.internal-server'));
           }
 
-          // filter items not change and select first (keep top detail when save)
-          const itemsChangedIds = itemsChangedData.map((item) => item.id);
-          const itemsNotChanged = details.filter((item) => !itemsChangedIds.includes(item.id));
-          setRowSelection([`${itemsNotChanged[0].id}`]);
-
-          setItemsChanged({});
-          getData();
+          getData(() => {
+            setFirstRowSelected(false);
+          });
+          onItemsChanged({});
         })
         .finally(() => {
           setLoading(false);
@@ -138,107 +115,180 @@ const Main = forwardRef((props: Props, ref) => {
         error: (error) => `${error.message || error || t('app.system.error.message')}`
       }
     );
-  }, [companyNo, details, dispatch, getData, itemsChanged, loading, status, t]);
+  }, [companyNo, dispatch, getData, itemsChanged, onItemsChanged, status, t]);
+
+  const onSave = useCallback(() => {
+    if (loading || !status || !companyNo) {
+      return;
+    }
+
+    const values = Object.values(itemsChanged);
+
+    if (!values.length) {
+      toast.error(t('app.system.saved.no-changed'));
+      return;
+    }
+
+    if (allowedStatusReplyClarification.includes(status)) {
+      onReply();
+      return;
+    }
+
+    setLoading(true);
+
+    const detailParams = {
+      status,
+      company_no: companyNo,
+      data: values.map((item) => ({
+        id: item.id,
+        invoice_id: item.invoiceId,
+        invoice_position_id: item.invoicePositionId,
+        account_id: item.accountId,
+        account_no: item.accountNo,
+        system_account_id: item.systemAccountId,
+        system_account_no: item.systemAccountNo
+      }))
+    };
+
+    toast.promise(
+      dispatch(saveAllocationItemsDetail(detailParams))
+        .then((response) => {
+          const payload = response.payload as AxiosResponse;
+          if (!payload || payload?.data?.status !== HttpStatusCode.Ok) {
+            throw new Error(t('app.system.error.internal-server'));
+          }
+
+          getData(() => {
+            setFirstRowSelected(false);
+          });
+          onItemsChanged({});
+        })
+        .finally(() => {
+          setLoading(false);
+        }),
+      {
+        loading: t('app.system.loading.saving'),
+        success: t('app.system.saved.success'),
+        error: (error) => `${error.message || error || t('app.system.error.message')}`
+      }
+    );
+  }, [companyNo, dispatch, getData, itemsChanged, loading, onItemsChanged, onReply, status, t]);
 
   const onSubmit = useCallback(
     (values: FormValues) => {
-      const { groupAccount, systemAccount } = values;
+      const { replyStatus, replyComment, groupAccount, systemAccount } = values;
 
-      if (!detailSelected || !groupAccount || !systemAccount) {
+      if (!allocationItem || !groupAccount || !systemAccount) {
         return;
       }
 
-      const itemsChanged = {
-        // set status for UI counter
-        status: 'checked',
+      setGroupAccount(groupAccount);
+
+      const detail = {
+        status: 'local-checked',
         accountId: groupAccount.id,
         accountNo: groupAccount.accountNo,
         accountName: groupAccount.accountName,
         systemAccountId: systemAccount.id,
         systemAccountNo: systemAccount.accountNo,
-        systemAccountName: systemAccount.accountName
+        systemAccountName: systemAccount.accountName,
+        replyStatus,
+        replyComment
       };
+
+      const referenceDetail = details.filter(
+        (detail) =>
+          detail.id !== allocationItem.id &&
+          detail.itemName === allocationItem.itemName &&
+          !allowedStatusReplyClarification.includes(status)
+      );
+
+      const referenceDetailChanged = referenceDetail.reduce(
+        (accumulator, current) => {
+          accumulator[current.id] = {
+            ...detail,
+            id: current.id,
+            invoiceId: current.invoiceId,
+            invoicePositionId: current.invoicePositionId
+          };
+          return accumulator;
+        },
+        {} as { [itemId: string]: AllocationItemsDetailChanged }
+      );
 
       dispatch(
         allocationItemsAction.setAllocationItemsDetailById({
-          data: { id: detailSelected.id, details: itemsChanged },
+          data: {
+            id: allocationItem.id,
+            referenceIds: referenceDetail.map((item) => item.id),
+            detail
+          },
           params: { companyNo, status }
         })
       );
 
-      setItemsChanged((prev) => ({
-        ...prev,
-        [detailSelected.id]: {
-          ...itemsChanged,
-          id: detailSelected.id,
-          status,
-          invoiceId: detailSelected.invoiceId,
-          invoicePositionId: detailSelected.invoicePositionId
+      onItemsChanged({
+        ...itemsChanged,
+        ...referenceDetailChanged,
+        [allocationItem.id]: {
+          ...detail,
+          id: allocationItem.id,
+          invoiceId: allocationItem.invoiceId,
+          invoicePositionId: allocationItem.invoicePositionId
         }
-      }));
-
-      onNextItem();
+      });
     },
-    [companyNo, detailSelected, dispatch, onNextItem, status]
+    [allocationItem, details, dispatch, companyNo, status, setGroupAccount, onItemsChanged, itemsChanged]
   );
 
-  const formik = useFormik({
-    initialValues,
-    validationSchema: validationSchema(t),
-    onSubmit
-  });
-
-  const { values } = formik;
-
   const columns = useColumns(t);
-
   const countItemsNew = useMemo(() => details.filter((item) => item.status === status).length, [details, status]);
 
   useEffect(() => {
-    // select first row
     if (isFirstRowSelected) {
       return;
     }
 
     if (details.length > 0) {
-      setRowSelection([`${details[0].id}`]);
-      setFirstRowSelected(true);
-    }
-  }, [isFirstRowSelected, details]);
-
-  useEffect(() => {
-    // listen group account change
-    onSelectGroupAccount(values.groupAccount);
-  }, [onSelectGroupAccount, values.groupAccount]);
-
-  useEffect(() => {
-    // listen allocation items change
-    onSelectAllocationItem(detailSelected ?? null);
-  }, [detailSelected, onSelectAllocationItem]);
-
-  useEffect(() => {
-    if (detailSelected?.accountId) {
-      formik.setFieldValue('groupAccount', {
-        id: detailSelected.accountId,
-        accountNo: detailSelected.accountNo,
-        accountName: detailSelected.accountName
-      });
-    } else {
-      formik.setFieldValue('groupAccount', null);
+      setAllocationItem(details[0]);
     }
 
-    if (detailSelected?.systemAccountId) {
-      formik.setFieldValue('systemAccount', {
-        id: detailSelected.systemAccountId,
-        accountNo: detailSelected.systemAccountNo,
-        accountName: detailSelected.systemAccountName
-      });
-    } else {
-      formik.setFieldValue('systemAccount', null);
+    setFirstRowSelected(true);
+  }, [isFirstRowSelected, details, setAllocationItem]);
+
+  const onNextItem = useCallback(() => {
+    if (!formikRef.current) {
+      return;
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detailSelected]);
+    const formik = formikRef.current;
+
+    if (!formik.isValid) {
+      const keyNames = getFormKeyNames(t);
+      toast(
+        () => (
+          <div>
+            <div>{t('app.form.validation.invalid')}</div>
+            {Object.entries(formik.errors).map(([key, value]) => (
+              <div key={key}>
+                <strong style={{ marginLeft: 10 }}>- {keyNames[key as keyof typeof keyNames]}</strong>: {value}
+              </div>
+            ))}
+          </div>
+        ),
+        { position: 'top-center' }
+      );
+      return;
+    }
+
+    if (allocationItem) {
+      const currentIndex = details.findIndex((detail) => allocationItem.id === detail.id);
+      if (currentIndex < details.length - 1) {
+        formik.resetForm();
+        setAllocationItem(details[currentIndex + 1]);
+      }
+    }
+  }, [allocationItem, details, setAllocationItem, t]);
 
   const onLayoutRenderDetail = useCallback(() => {
     const wrapperHeight = viewRef.current?.clientHeight || 0;
@@ -247,13 +297,32 @@ const Main = forwardRef((props: Props, ref) => {
     setInitialSizesPane([sizePaneDefault, 100 - sizePaneDefault]);
   }, []);
 
+  const onRowSelectionModelChange = useCallback(
+    (model: GridRowSelectionModel) => {
+      const detail = details.find((item) => item.id === model[0]);
+      setAllocationItem(detail ?? null);
+    },
+    [details, setAllocationItem]
+  );
+
+  const detailsProxy = useMemo(
+    () => details.filter((item) => item.status === status || item.status === 'local-checked'),
+    [details, status]
+  );
+
   useImperativeHandle(ref, () => {
     return {
       save() {
         onSave();
       },
+      submitForm() {
+        formikRef.current?.submitForm();
+      },
       toggleVisibleFilePdf() {
         detailRef.current?.toggleVisibleFilePdf();
+      },
+      onFirstRowSelected(status: boolean) {
+        setFirstRowSelected(status);
       }
     };
   }, [onSave]);
@@ -265,24 +334,30 @@ const Main = forwardRef((props: Props, ref) => {
       <SplitPane
         ref={splitPaneRef}
         split='horizontal'
-        loading={isFirstRowSelected}
+        hideSashContent={!isFirstRowSelected}
         initialSizesPane={initialSizesPane}
         initialSizesPaneClose={[100, 0]}
       >
         <Pane minSize='30%' maxSize='80%' style={{ display: 'flex' }}>
           <Section style={{ padding: '5px 0' }} flexGrow={1}>
-            {detailSelected && (
+            {allocationItem && (
               <Suspense fallback={<LinearProgress />}>
-                <Detail
-                  ref={detailRef}
-                  formik={formik}
-                  loading={loading}
-                  detail={detailSelected}
-                  onLoading={setLoading}
-                  onLayoutRender={onLayoutRenderDetail}
-                  openSplitPane={(sizePane.split('-').map(Number)[1] || 0) !== 0}
-                  onCloseSplitPane={() => splitPaneRef.current?.switchPane('close')}
-                />
+                <Formik
+                  innerRef={formikRef}
+                  initialValues={initialValues}
+                  validationSchema={validationSchema(t, status)}
+                  onSubmit={onSubmit}
+                >
+                  <Detail
+                    ref={detailRef}
+                    loading={loading}
+                    onLoading={setLoading}
+                    onNextItem={onNextItem}
+                    onLayoutRender={onLayoutRenderDetail}
+                    openSplitPane={(sizePane.split('-').map(Number)[1] || 0) !== 0}
+                    onCloseSplitPane={() => splitPaneRef.current?.switchPane('close')}
+                  />
+                </Formik>
               </Suspense>
             )}
           </Section>
@@ -292,13 +367,13 @@ const Main = forwardRef((props: Props, ref) => {
             <TopBar countItemsNew={countItemsNew} countItemsTotal={details.length} />
             <DataGrid
               name='allocation.items.update'
-              rows={details}
+              rows={detailsProxy}
               autoHeight={false}
               columns={columns}
               getRowId={(row) => row.id}
               loading={detailsStatus === 'loading'}
-              rowSelectionModel={rowSelection}
-              onRowSelectionModelChange={(model) => setRowSelection(model)}
+              rowSelectionModel={allocationItem ? [allocationItem.id] : []}
+              onRowSelectionModelChange={onRowSelectionModelChange}
             />
           </Section>
         </Pane>

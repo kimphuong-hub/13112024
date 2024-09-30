@@ -13,7 +13,7 @@ npm install
 
 - Run this project on develop:
 ```
-npm run dev
+npm start
 ```
 
 - Run this command for build project:

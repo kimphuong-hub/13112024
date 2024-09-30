@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 
 const TextFieldRef = (
   props: TextFieldProps,
-  ref: ((instance: HTMLInputElement | null) => void) | React.RefObject<HTMLInputElement> | null
+  ref: ((instance: HTMLDivElement | null) => void) | React.RefObject<HTMLDivElement> | null
 ) => (
   <MuiTextField
     ref={ref}

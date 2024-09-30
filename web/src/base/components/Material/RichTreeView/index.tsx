@@ -2,7 +2,7 @@ import { styled, svgIconClasses } from '@mui/material';
 import { RichTreeView as MuiRichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { treeItemClasses } from '@mui/x-tree-view/TreeItem';
 
-export const RichTreeView = styled(MuiRichTreeView)(({ theme }) => ({
+const RichTreeView = styled(MuiRichTreeView)(({ theme }) => ({
   [`& .${treeItemClasses.root} .${treeItemClasses.label}`]: {
     fontSize: 14
   },
@@ -10,3 +10,5 @@ export const RichTreeView = styled(MuiRichTreeView)(({ theme }) => ({
     color: theme.palette.text.secondary
   }
 }));
+
+export default RichTreeView;

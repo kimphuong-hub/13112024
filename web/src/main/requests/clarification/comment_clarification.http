@@ -1,0 +1,26 @@
+POST /clarification/comment_clarification HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "invoice_account_id": 1,
+  "clarification_category_id": 1,
+  "clarification_comment": "Comment clarification",
+  "current_status": "allocation1",
+  "next_status": "clarification1",
+  "invoice_account_reference_ids": [
+    123,
+    124
+  ],
+  "company_no": "company_no",
+  "invoice_account": {
+    "invoice_id": 1668,
+    "invoice_position_id": 5321,
+    "id": 134,
+    "account_id": 10,
+    "account_no": "5321",
+    "system_account_id": 9,
+    "system_account_no": "24"
+  }
+}

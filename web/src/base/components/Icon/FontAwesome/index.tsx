@@ -9,19 +9,26 @@ export type FontAwesomeIconType = {
 
 export type FontAwesomeIconProps = BoxProps & FontAwesomeIconType;
 
-type RefProps = ((instance: HTMLDivElement | null) => void) | React.RefObject<HTMLDivElement> | null;
+const FontAwesomeIcon = forwardRef(
+  (
+    props: FontAwesomeIconProps,
+    ref: ((instance: HTMLDivElement | null) => void) | React.RefObject<HTMLDivElement> | null
+  ) => {
+    const theme = useTheme();
+    const { sx, icon, color = theme.palette.text.secondary, size: fontSize, className = '', ...restProps } = props;
 
-export default forwardRef(function FontAwesomeIcon(props: FontAwesomeIconProps, ref: RefProps) {
-  const theme = useTheme();
-  const { sx, icon, color = theme.palette.text.secondary, size: fontSize, className = '', ...restProps } = props;
+    return (
+      <Box
+        sx={{ color, fontSize, ...sx }}
+        ref={ref}
+        component='span'
+        className={`fa-icon ${icon}${className ? ' ' + className : ''}`}
+        {...restProps}
+      ></Box>
+    );
+  }
+);
 
-  return (
-    <Box
-      sx={{ color, fontSize, ...sx }}
-      ref={ref}
-      component='span'
-      className={`fa-icon ${icon}${className ? ' ' + className : ''}`}
-      {...restProps}
-    ></Box>
-  );
-});
+FontAwesomeIcon.displayName = 'FontAwesomeIcon';
+
+export default FontAwesomeIcon;

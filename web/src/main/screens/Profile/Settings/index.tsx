@@ -1,8 +1,11 @@
 import { Grid, SelectChangeEvent, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import { useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { Accordion, AccordionDetails, AccordionSummary } from '~/base/components/Material/Accordion';
+import Accordion from '~/base/components/Material/Accordion';
+import AccordionDetails from '~/base/components/Material/Accordion/Details';
+import AccordionSummary from '~/base/components/Material/Accordion/Summary';
 import Label from '~/base/components/Material/Form/Label';
 import Select from '~/base/components/Material/Form/Select';
 import SelectItem from '~/base/components/Material/Form/Select/SelectItem';
@@ -11,12 +14,11 @@ import View from '~/base/components/Material/View';
 import LayoutWrapper from '~/base/layout/Wrapper';
 import { objectToArray } from '~/core/commonFuncs';
 import { i18nResources } from '~/core/i18n';
+import { saveCommonConfiguration } from '~/redux/common/action';
 import { commonAction } from '~/redux/common/slice';
 import { useDispatchApp, useSelectorApp } from '~/redux/store';
 import { FormValues, initialValues, validationSchema } from './common/form';
 import { FormAction } from './components/FormAction';
-import { saveCommonConfiguration } from '~/redux/common/action';
-import toast from 'react-hot-toast';
 
 const ProfileSettingsScreen = () => {
   const { t } = useTranslation();
@@ -25,6 +27,7 @@ const ProfileSettingsScreen = () => {
   const common = useSelectorApp((state) => state.common);
   const profile = useSelectorApp((state) => state.auth.data.profile);
 
+  const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState('panel1');
 
   const onExpanded = useCallback((name: string, expanded: boolean) => {
@@ -33,14 +36,26 @@ const ProfileSettingsScreen = () => {
 
   const onSubmit = useCallback(
     (values: FormValues) => {
+      if (loading) {
+        return;
+      }
+
       const { theme, language } = values;
-      toast.promise(dispatch(saveCommonConfiguration({ theme, language })), {
-        loading: t('app.system.loading.saving'),
-        success: t('app.system.saved.success'),
-        error: (error) => `${error.message || error || t('app.system.error.message')}`
-      });
+
+      setLoading(true);
+
+      toast.promise(
+        dispatch(saveCommonConfiguration({ theme, language })).finally(() => {
+          setLoading(false);
+        }),
+        {
+          loading: t('app.system.loading.saving'),
+          success: t('app.system.saved.success'),
+          error: (error) => `${error.message || error || t('app.system.error.message')}`
+        }
+      );
     },
-    [dispatch, t]
+    [dispatch, loading, t]
   );
 
   const formik = useFormik({
@@ -102,7 +117,7 @@ const ProfileSettingsScreen = () => {
               <Grid item xs={12} lg={6}>
                 <View alignItems='end' gap={2}>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.user-type.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.user-type.label')}</Label>
                     <Select
                       name='userType'
                       value={formik.values.userType}
@@ -116,7 +131,7 @@ const ProfileSettingsScreen = () => {
                     </Select>
                   </View>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.first-name.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.first-name.label')}</Label>
                     <TextField
                       name='firstName'
                       value={formik.values.firstName}
@@ -127,7 +142,7 @@ const ProfileSettingsScreen = () => {
                     />
                   </View>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.last-name.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.last-name.label')}</Label>
                     <TextField
                       name='lastName'
                       value={formik.values.lastName}
@@ -138,7 +153,7 @@ const ProfileSettingsScreen = () => {
                     />
                   </View>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.number-format.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.number-format.label')}</Label>
                     <Select
                       name='numberFormat'
                       value={formik.values.numberFormat}
@@ -157,7 +172,7 @@ const ProfileSettingsScreen = () => {
               <Grid item xs={12} lg={6}>
                 <View alignItems='end' gap={2}>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.email.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.email.label')}</Label>
                     <TextField
                       name='email'
                       value={formik.values.email}
@@ -169,7 +184,7 @@ const ProfileSettingsScreen = () => {
                     />
                   </View>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.display-name.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.display-name.label')}</Label>
                     <TextField
                       name='displayName'
                       value={formik.values.displayName}
@@ -180,7 +195,7 @@ const ProfileSettingsScreen = () => {
                     />
                   </View>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.theme.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.theme.label')}</Label>
                     <Select
                       name='theme'
                       value={formik.values.theme}
@@ -188,12 +203,12 @@ const ProfileSettingsScreen = () => {
                       onChange={onChangeTheme}
                       error={formik.touched.theme && Boolean(formik.errors.theme)}
                     >
-                      <SelectItem value='dark'>{t('app.input.theme.dark.option')}</SelectItem>
-                      <SelectItem value='light'>{t('app.input.theme.light.option')}</SelectItem>
+                      <SelectItem value='dark'>{t('app.profile.master-data.input.theme.dark.option')}</SelectItem>
+                      <SelectItem value='light'>{t('app.profile.master-data.input.theme.light.option')}</SelectItem>
                     </Select>
                   </View>
                   <View flexDirection='row' alignItems='center' gap={4} sx={{ width: { xs: '100%', lg: '70%' } }}>
-                    <Label style={{ width: '20%' }}>{t('app.input.language.label')}</Label>
+                    <Label style={{ width: '20%' }}>{t('app.profile.master-data.input.language.label')}</Label>
                     <Select
                       name='language'
                       value={formik.values.language}

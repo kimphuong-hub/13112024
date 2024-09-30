@@ -88,7 +88,7 @@ const AuthLoginScreen = () => {
             onChange={formik.handleChange}
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
-            placeholder={t('app.input.email.placeholder')}
+            placeholder={t('app.profile.master-data.input.email.placeholder')}
           />
           <LayoutAuthTextField
             icon='fa-solid fa-lock-alt'
@@ -99,7 +99,7 @@ const AuthLoginScreen = () => {
             onChange={formik.handleChange}
             error={formik.touched.password && Boolean(formik.errors.password)}
             helperText={formik.touched.password && formik.errors.password}
-            placeholder={t('app.input.password.placeholder')}
+            placeholder={t('app.profile.master-data.input.password.placeholder')}
           />
         </View>
         <LayoutAuthButton type='submit'>

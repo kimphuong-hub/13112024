@@ -25,7 +25,7 @@ export const useColumnsItems = (t: TFunction<'translation', undefined>): GridCol
   },
   {
     width: 150,
-    field: 'customerName',
+    field: 'supplierName',
     headerName: t('app.allocation.items.info.columns.supplier')
   }
 ];

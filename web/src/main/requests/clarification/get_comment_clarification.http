@@ -1,0 +1,6 @@
+@invoice_account_id = 1
+@status = clarification1
+
+GET /clarification/get_comment_clarification?invoice_account_id={{invoice_account_id}}&status={{status}} HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{access_token}}

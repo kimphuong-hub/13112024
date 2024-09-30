@@ -41,7 +41,7 @@ const getSlotProps = (t: TFunction<'translation', undefined>): Partial<DataGridP
   pagination: {
     showLastButton: true,
     showFirstButton: true,
-    labelRowsPerPage: t('app.system.grid.pagination.rows-per-page')
+    labelRowsPerPage: t('app.grid.pagination.rows-per-page')
   },
   columnsPanel: {
     sx: {
@@ -65,17 +65,17 @@ const getSlotProps = (t: TFunction<'translation', undefined>): Partial<DataGridP
 });
 
 const getLocaleText = (t: TFunction<'translation', undefined>): Partial<GridLocaleText> => ({
-  noRowsLabel: t('app.system.grid.no-rows'),
-  columnMenuLabel: t('app.system.grid.column.menu.label'),
-  columnMenuFilter: t('app.system.grid.column.menu.filter'),
-  columnMenuSortAsc: t('app.system.grid.column.menu.sort-asc'),
-  columnMenuSortDesc: t('app.system.grid.column.menu.sort-desc'),
-  columnMenuUnsort: t('app.system.grid.column.menu.unsort'),
-  columnMenuHideColumn: t('app.system.grid.column.menu.hide-column'),
-  columnMenuShowColumns: t('app.system.grid.column.menu.show-columns'),
-  columnMenuManageColumns: t('app.system.grid.column.menu.manage-columns'),
-  columnHeaderSortIconLabel: t('app.system.grid.column.header.sort-icon-label'),
-  footerRowSelected: (count) => t('app.system.grid.footer.row.selected', { count })
+  noRowsLabel: t('app.grid.no-rows'),
+  columnMenuLabel: t('app.grid.column.menu.label'),
+  columnMenuFilter: t('app.grid.column.menu.filter'),
+  columnMenuSortAsc: t('app.grid.column.menu.sort-asc'),
+  columnMenuSortDesc: t('app.grid.column.menu.sort-desc'),
+  columnMenuUnsort: t('app.grid.column.menu.unsort'),
+  columnMenuHideColumn: t('app.grid.column.menu.hide-column'),
+  columnMenuShowColumns: t('app.grid.column.menu.show-columns'),
+  columnMenuManageColumns: t('app.grid.column.menu.manage-columns'),
+  columnHeaderSortIconLabel: t('app.grid.column.header.sort-icon-label'),
+  footerRowSelected: (count) => t('app.grid.footer.row.selected', { count })
 });
 
 const CustomUserItem = (props: GridColumnMenuItemProps) => {
@@ -109,7 +109,7 @@ const CustomColumnMenu = (
           ...(onResetSizeColumns && {
             columnMenuUserItem: {
               displayOrder: 30,
-              resetSizeColumnsTitle: t('app.system.grid.column.menu.reset-size-columns'),
+              resetSizeColumnsTitle: t('app.grid.column.menu.reset-size-columns'),
               onResetSizeColumnsClick: (event: SyntheticEvent<Element, Event>) =>
                 onResetSizeColumns(() => hideMenu(event))
             }
@@ -205,12 +205,7 @@ const DataGrid = styled((props: DataGridProps) => {
         autoHeight={autoHeight}
         slots={{
           columnMenu: (props) => (
-            <CustomColumnMenu
-              {...(name && {
-                onResetSizeColumns: onResetSizeColumnsProxy
-              })}
-              {...props}
-            />
+            <CustomColumnMenu {...(name && { onResetSizeColumns: onResetSizeColumnsProxy })} {...props} />
           )
         }}
         slotProps={getSlotProps(t)}
@@ -237,12 +232,7 @@ const DataGrid = styled((props: DataGridProps) => {
           autoHeight={false}
           slots={{
             columnMenu: (props) => (
-              <CustomColumnMenu
-                {...(name && {
-                  onResetSizeColumns: onResetSizeColumnsProxy
-                })}
-                {...props}
-              />
+              <CustomColumnMenu {...(name && { onResetSizeColumns: onResetSizeColumnsProxy })} {...props} />
             )
           }}
           slotProps={getSlotProps(t)}
@@ -266,7 +256,8 @@ const DataGrid = styled((props: DataGridProps) => {
   [`& .MuiDataGrid-cell`]: { display: 'inline-flex', alignItems: 'center', fontSize: 12.5 },
   ...(disableStyleFocusedCell && {
     ['& .MuiDataGrid-cell:focus']: { outline: 'none' },
-    ['& .MuiDataGrid-cell:focus-within']: { outline: 'none' }
+    ['& .MuiDataGrid-cell:focus-within']: { outline: 'none' },
+    ['& .MuiDataGrid-cell.MuiDataGrid-cell--editing:focus-within']: { outline: 'none' }
   }),
   [`& .MuiDataGrid-columnHeader`]: {
     color: theme.palette.mode === 'dark' ? '#D8D8D8' : '#000000',

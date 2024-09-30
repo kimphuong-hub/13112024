@@ -14,7 +14,17 @@ Content-Type: application/json
       "account_id": 10,
       "account_no": "277",
       "system_account_id": 0,
-      "system_account_no": 0
+      "system_account_no": 0,
+      "clarification_detail": [{
+        "clarification_id": 1,
+        "reply_comment": "Test",
+        "current_status": "clarification1",
+        "next_status": "exported",
+        "invoice_account_reference_ids": [
+          123,
+          124
+        ]
+      }]
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { FilterType } from '~/core/types';
 import { GroupAccountResponse } from '../../account-settings/group-accounts/types';
-import { SystemAccountResponse, SystemCompanyAccountResponse } from '../../account-settings/system-accounts/types';
+import { SystemCompanyAccountResponse } from '../../account-settings/system-accounts/types';
 
 export type AllocationItemsState = {
   items: {
@@ -14,6 +14,21 @@ export type AllocationItemsState = {
         data: AllocationItemsDetailResponse[];
         companyNo: string;
         companyName: string;
+        status: 'loading' | 'hasValue' | 'hasError';
+      };
+    };
+  };
+
+  clarification: {
+    comments: {
+      [invoiceId: string]: {
+        data: ClarificationCommentResponse[];
+        status: 'loading' | 'hasValue' | 'hasError';
+      };
+    };
+    categories: {
+      [type: string]: {
+        data: ClarificationCategoryResponse[];
         status: 'loading' | 'hasValue' | 'hasError';
       };
     };
@@ -43,13 +58,6 @@ export type AllocationItemsState = {
     };
   };
 
-  systemAccountOptions: {
-    [companyNo: string]: {
-      data: SystemAccountResponse[];
-      status: 'loading' | 'hasValue' | 'hasError';
-    };
-  };
-
   systemCompanyAccountOptions: {
     [companyNo: string]: {
       data: SystemCompanyAccountResponse[];
@@ -70,9 +78,12 @@ export type AllocationItemsResponse = {
   newItems: number;
 
   checked: number;
+  unsettled: number;
   allocation1: number;
   allocation2: number;
   verification: number;
+  clarification1: number;
+  clarification2: number;
 
   lastAllocation: number;
   defaultAllocation: number;
@@ -95,6 +106,13 @@ export type AllocationItemsDetailResponse = {
   systemAccountId: string;
   systemAccountNo: string;
   systemAccountName: string;
+
+  clarificationDate: string;
+  clarificationComment: string;
+  clarificationUsername: string;
+  clarificationReplyDate: string;
+  clarificationReplyComment: string;
+  clarificationReplyUsername: string;
 
   status: string;
   allocationType: string;
@@ -137,28 +155,86 @@ export type AllocationItemsDetailResponse = {
 
 export type AllocationItemsDetailChanged = {
   id: string;
-  invoiceId?: number;
-  invoicePositionId?: number;
-  accountId?: string;
-  accountNo?: string;
-  systemAccountId?: string | null;
-  systemAccountNo?: string | null;
+  invoiceId: number;
+  invoicePositionId: number;
+  accountId: string;
+  accountNo: string;
+  systemAccountId: string;
+  systemAccountNo: string;
+  replyStatus: string;
+  replyComment: string;
 };
 
 export type SetAllocationItemsDetailPayload = {
   data: {
     id: string;
-    details: {
+    referenceIds: string[];
+    detail: {
       status?: string;
 
-      accountId?: string | null;
-      accountName?: string | null;
-      accountNo?: string | null;
+      accountId?: string;
+      accountName?: string;
+      accountNo?: string;
 
-      systemAccountId?: string | null;
-      systemAccountName?: string | null;
-      systemAccountNo?: string | null;
+      systemAccountId?: string;
+      systemAccountName?: string;
+      systemAccountNo?: string;
     };
   };
   params: { companyNo: string; status: string };
+};
+
+export type AllocationStatusType = 'allocation1' | 'allocation2' | 'verification';
+
+export type ClarificationStatusType = 'clarification1' | 'clarification2';
+
+export type ClarificationCommentResponse = {
+  id: string;
+  date: string;
+  user: string;
+  comment: string;
+  replyUser: string;
+  replyComment: string;
+};
+
+export type ClarificationCategoryResponse = {
+  id: string;
+  name: string;
+  type: string;
+  isDefault: boolean;
+};
+
+export type ReplyClarificationPayload = {
+  status: string;
+  company_no: string;
+  data: {
+    id: string;
+    invoice_id: number;
+    invoice_position_id: number;
+    account_id: string;
+    account_no: string;
+    system_account_id: string | 0;
+    system_account_no: string | 0;
+    next_status: string;
+    reply: string;
+  }[];
+};
+
+export type CommentClarificationPayload = {
+  invoice_account_id: string;
+  clarification_category_id: string;
+  clarification_comment: string;
+  current_status: string;
+  next_status: string;
+  invoice_account_reference_ids: string[];
+  company_no: string;
+  invoice_account: {
+    invoice_id: number;
+    invoice_position_id: number;
+    id: string;
+    account_id: string;
+    account_no: string;
+    system_account_id: string;
+    system_account_no: string;
+  };
 };

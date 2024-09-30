@@ -31,13 +31,12 @@ export const allocationArchivesSlice = createSlice({
         items: 'items',
         defaultAllocation: 'default_allocation',
         lastAllocation: 'last_allocation',
-        newItems: 'new_items',
-        exported: 'exported'
+        newItems: 'new_items'
       };
 
       const sortModel = action.payload.map((item) => ({
         sort: item.sort,
-        field: fields[item.field as keyof typeof fields]
+        field: fields[item.field as keyof typeof fields] ?? item.field
       }));
 
       state.archives.sort = sortModel;

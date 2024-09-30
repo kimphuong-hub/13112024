@@ -16,7 +16,7 @@ export default defineConfig(() => ({
       output: {
         manualChunks: {
           ui: ['@mui/material'],
-          vendor: ['react', 'react-dom'],
+          vendor: ['react', 'react-dom']
         }
       }
     }

@@ -18,8 +18,8 @@ const GroupAccountsAllocationItems = (props: Props) => {
   const { t } = useTranslation();
 
   const dispatch = useDispatchApp();
-  const { items: _items } = useSelectorApp((state) => state.allocation.items.groupAccountDrawer);
-  const { data: items = [], status: itemsStatus } = _items[companyNo]?.[accountNo] || {};
+  const { items: defaultItems } = useSelectorApp((state) => state.allocation.items.groupAccountDrawer);
+  const { data: items = [], status: itemsStatus } = defaultItems[companyNo]?.[accountNo] || {};
 
   const getData = useCallback(() => {
     dispatch(getItemsByGroupAndAccount({ accountNo, companyNo }));

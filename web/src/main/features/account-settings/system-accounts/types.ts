@@ -52,7 +52,7 @@ export type SystemCompanyAccountResponse = {
   accountNoCount: number;
 
   isGroupAccount: boolean;
-  isContainGroupAccount: boolean;
+  countGroupAccounts: number;
 
   children: SystemCompanyAccountResponse[];
 };

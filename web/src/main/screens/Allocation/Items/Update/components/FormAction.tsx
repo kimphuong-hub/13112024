@@ -4,6 +4,7 @@ import FontAwesomeIcon from '~/base/components/Icon/FontAwesome';
 import IconButton from '~/base/components/Material/Button/Icon';
 import Tooltip from '~/base/components/Material/Tooltip';
 import View from '~/base/components/Material/View';
+import { allowedStatusSendClarification } from '../common/config';
 
 type Props = {
   onSubmit?: () => void;
@@ -22,10 +23,10 @@ export const FormAction = (props: Props) => {
 
   return (
     <View flexDirection='row' justifyContent='end' alignItems='end' gap={3}>
-      {['allocation2'].includes(status) && (
-        <Tooltip title={'Send Clarification (Alt + ?)'}>
+      {allowedStatusSendClarification.includes(status) && (
+        <Tooltip title={t('app.allocation.items.info.button.send-clarification.tooltip')}>
           <IconButton style={{ width: 40, height: 30 }} onClick={onToggleSendClarification}>
-            <FontAwesomeIcon icon='fa-solid fa-question' size={15} />
+            <FontAwesomeIcon icon='fa-solid fa-square-question' size={17} />
           </IconButton>
         </Tooltip>
       )}

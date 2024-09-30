@@ -1,15 +1,16 @@
-import { Box, Divider } from '@mui/material';
+import { Divider } from '@mui/material';
 import { useCallback, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import View from '~/base/components/Material/View';
+import { AccountingSession } from '~/const/storage';
 import { isDev } from '~/core/config';
 import { commonAction } from '~/redux/common/slice';
 import { useDispatchApp, useSelectorApp } from '~/redux/store';
 import LayoutIcon from '../../Icon';
 import UserMenuItem from './MenuItem';
 import { MenuStyled } from './styles';
-import { AccountingSession } from '~/const/storage';
-import { useCookies } from 'react-cookie';
 
 export default function LayoutUser() {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ export default function LayoutUser() {
   }, [removeCookies]);
 
   return (
-    <Box>
+    <View>
       <LayoutIcon icon='fa-solid fa-circle-user' iconSize={35} onClick={onOpenMenu} />
       <MenuStyled open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)}>
         <UserMenuItem icon='fa-solid fa-gear' title={t('app.navbar.user.menu.settings')} onClick={onSettings} />
@@ -69,6 +70,6 @@ export default function LayoutUser() {
           onClick={onLogout}
         />
       </MenuStyled>
-    </Box>
+    </View>
   );
 }

@@ -3,16 +3,17 @@
 export const flattenSubTree = (items: any[]): any[] => {
   const result: any[] = [];
 
-  const collectIds = (items: any[], parentId = '') => {
+  const flatten = (items: any[], parentIds: string[] = []) => {
     for (const item of items) {
-      result.push({ ...item, parents: parentId, children: [] });
+      const childrenIds = getAllIdsSubTree(item.children);
+      result.push({ ...item, parentIds, childrenIds });
       if (item.children && item.children.length > 0) {
-        collectIds(item.children, `${parentId}-${item.id}`);
+        flatten(item.children, [...parentIds, item.id]);
       }
     }
   };
 
-  collectIds(items);
+  flatten(items);
   return result;
 };
 
@@ -85,18 +86,18 @@ export const findSubtreeParentById = (items: any[], targetId: string | number): 
 export const findSubtreeParentFirstById = (items: any[], targetId: string | number): any | null => {
   let parent: any | null = null;
 
-  const findParent = (accounts: any[]): void => {
+  const findSubtreeParent = (accounts: any[]): void => {
     for (const account of accounts) {
       if (account.children && account.children.some((child: any) => child.id === targetId)) {
         parent = account;
         return;
       }
       if (account.children) {
-        findParent(account.children);
+        findSubtreeParent(account.children);
       }
     }
   };
 
-  findParent(items);
+  findSubtreeParent(items);
   return parent;
 };

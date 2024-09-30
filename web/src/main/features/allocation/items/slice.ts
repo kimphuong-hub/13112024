@@ -2,18 +2,22 @@ import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
 import { createSlice } from '@reduxjs/toolkit';
 import { getGroupAccountsByCompanyNo } from '../../account-settings/group-accounts/action';
 import { mappingGroupAccountsResponse } from '../../account-settings/group-accounts/model';
+import { getSystemCompanyAccountsByCompanyNo } from '../../account-settings/system-accounts/action';
+import { mappingSystemCompanyAccountsResponse } from '../../account-settings/system-accounts/model';
 import { getItemsByGroupAndAccount } from '../../items/action';
-import { getAllocationItems, getAllocationItemsDetail } from './action';
-import { mappingAllocationItemsDetailsResponse, mappingAllocationItemsResponse } from './model';
+import {
+  getAllocationItems,
+  getAllocationItemsDetail,
+  getClarificationCategories,
+  getClarificationComments
+} from './action';
+import {
+  mappingAllocationItemsDetailsResponse,
+  mappingAllocationItemsResponse,
+  mappingClarificationCategoriesResponse,
+  mappingClarificationCommentsResponse
+} from './model';
 import { AllocationItemsState, SetAllocationItemsDetailPayload } from './types';
-import {
-  getSystemAccountsByCompanyNo,
-  getSystemCompanyAccountsByCompanyNo
-} from '../../account-settings/system-accounts/action';
-import {
-  mappingSystemAccountsResponse,
-  mappingSystemCompanyAccountsResponse
-} from '../../account-settings/system-accounts/model';
 
 const initialState: AllocationItemsState = {
   items: {
@@ -24,9 +28,12 @@ const initialState: AllocationItemsState = {
     pagination: { page: 0, pageSize: 25 }
   },
   details: {},
+  clarification: {
+    comments: {},
+    categories: {}
+  },
   groupAccountDrawer: { items: {}, accounts: {} },
   groupAccountOptions: {},
-  systemAccountOptions: {},
   systemCompanyAccountOptions: {}
 };
 
@@ -51,14 +58,12 @@ export const allocationItemsSlice = createSlice({
         items: 'items',
         defaultAllocation: 'default_allocation',
         lastAllocation: 'last_allocation',
-        newItems: 'new_items',
-        inProcess: 'in_process',
-        checked: 'checked'
+        newItems: 'new_items'
       };
 
       const sortModel = action.payload.map((item) => ({
         sort: item.sort,
-        field: fields[item.field as keyof typeof fields]
+        field: fields[item.field as keyof typeof fields] ?? item.field
       }));
 
       state.items.sort = sortModel;
@@ -71,7 +76,7 @@ export const allocationItemsSlice = createSlice({
     },
     setAllocationItemsDetailById: (state, action: { payload: SetAllocationItemsDetailPayload }) => {
       const {
-        data: { id, details },
+        data: { id, referenceIds, detail },
         params
       } = action.payload;
 
@@ -80,14 +85,25 @@ export const allocationItemsSlice = createSlice({
       }
 
       const detailsStatus = state.details[params.companyNo][params.status] || initialStateDetails;
-      const findDetailIndex = detailsStatus.data.findIndex((item) => item.id === id);
 
+      const findDetailIndex = detailsStatus.data.findIndex((item) => item.id === id);
       if (findDetailIndex > -1) {
         state.details[params.companyNo][params.status].data[findDetailIndex] = {
           ...state.details[params.companyNo][params.status].data[findDetailIndex],
-          ...details
+          ...detail
         };
       }
+
+      referenceIds.forEach((referenceId) => {
+        const findDetailIndex = detailsStatus.data.findIndex((item) => item.id === referenceId);
+        if (findDetailIndex > -1) {
+          state.details[params.companyNo][params.status].data[findDetailIndex] = {
+            ...state.details[params.companyNo][params.status].data[findDetailIndex],
+            ...detail,
+            status: 'local-unsettled'
+          };
+        }
+      });
     }
   },
   extraReducers: (builder) => {
@@ -103,6 +119,7 @@ export const allocationItemsSlice = createSlice({
       .addCase(getAllocationItems.rejected, (state) => {
         state.items.status = 'hasError';
       });
+
     builder
       .addCase(getAllocationItemsDetail.pending, (state, action) => {
         const { status, companyNo } = action.meta.arg;
@@ -146,6 +163,67 @@ export const allocationItemsSlice = createSlice({
           status: 'hasError'
         };
       });
+
+    builder
+      .addCase(getClarificationComments.pending, (state, action) => {
+        const { invoiceId } = action.meta.arg;
+
+        state.clarification.comments[invoiceId] = {
+          ...initialStateData,
+          ...state.clarification.comments[invoiceId],
+          status: 'loading'
+        };
+      })
+      .addCase(getClarificationComments.fulfilled, (state, action) => {
+        const { invoiceId } = action.meta.arg;
+
+        state.clarification.comments[invoiceId] = {
+          ...initialStateData,
+          ...state.clarification.comments[invoiceId],
+          data: mappingClarificationCommentsResponse(action.payload.data.data || []),
+          status: 'hasValue'
+        };
+      })
+      .addCase(getClarificationComments.rejected, (state, action) => {
+        const { invoiceId } = action.meta.arg;
+
+        state.clarification.comments[invoiceId] = {
+          ...initialStateData,
+          ...state.clarification.comments[invoiceId],
+          status: 'loading'
+        };
+      });
+
+    builder
+      .addCase(getClarificationCategories.pending, (state, action) => {
+        const { type } = action.meta.arg;
+
+        state.clarification.categories[type] = {
+          ...initialStateData,
+          ...state.clarification.categories[type],
+          status: 'loading'
+        };
+      })
+      .addCase(getClarificationCategories.fulfilled, (state, action) => {
+        const { type } = action.meta.arg;
+
+        state.clarification.categories[type] = {
+          ...initialStateData,
+          ...state.clarification.categories[type],
+          data: mappingClarificationCategoriesResponse(action.payload.data.data || []),
+          status: 'hasValue'
+        };
+      })
+      .addCase(getClarificationCategories.rejected, (state, action) => {
+        const { type } = action.meta.arg;
+
+        state.clarification.categories[type] = {
+          ...initialStateData,
+          ...state.clarification.categories[type],
+          status: 'loading'
+        };
+      });
+
     builder
       .addCase(getGroupAccountsByCompanyNo.pending, (state, action) => {
         const { companyNo } = action.meta.arg;
@@ -194,46 +272,7 @@ export const allocationItemsSlice = createSlice({
           status: 'hasError'
         };
       });
-    builder
-      .addCase(getSystemAccountsByCompanyNo.pending, (state, action) => {
-        const { companyNo } = action.meta.arg;
 
-        state.systemAccountOptions[companyNo] = {
-          ...initialStateData,
-          ...state.systemAccountOptions[companyNo],
-          status: 'loading'
-        };
-      })
-      .addCase(getSystemAccountsByCompanyNo.fulfilled, (state, action) => {
-        const { companyNo } = action.meta.arg;
-
-        // api wrong, not defined correct
-        if (!Array.isArray(action.payload.data)) {
-          state.systemAccountOptions[companyNo] = {
-            ...initialStateData,
-            ...state.systemAccountOptions[companyNo],
-            data: [],
-            status: 'hasValue'
-          };
-          return;
-        }
-
-        state.systemAccountOptions[companyNo] = {
-          ...initialStateData,
-          ...state.systemAccountOptions[companyNo],
-          data: mappingSystemAccountsResponse(action.payload.data || []),
-          status: 'hasValue'
-        };
-      })
-      .addCase(getSystemAccountsByCompanyNo.rejected, (state, action) => {
-        const { companyNo } = action.meta.arg;
-
-        state.systemAccountOptions[companyNo] = {
-          ...initialStateData,
-          ...state.systemAccountOptions[companyNo],
-          status: 'hasError'
-        };
-      });
     builder
       .addCase(getSystemCompanyAccountsByCompanyNo.pending, (state, action) => {
         const { companyNo } = action.meta.arg;
@@ -246,6 +285,17 @@ export const allocationItemsSlice = createSlice({
       })
       .addCase(getSystemCompanyAccountsByCompanyNo.fulfilled, (state, action) => {
         const { companyNo } = action.meta.arg;
+
+        // api wrong, not defined correct
+        if (!Array.isArray(action.payload.data)) {
+          state.systemCompanyAccountOptions[companyNo] = {
+            ...initialStateData,
+            ...state.systemCompanyAccountOptions[companyNo],
+            data: [],
+            status: 'hasValue'
+          };
+          return;
+        }
 
         state.systemCompanyAccountOptions[companyNo] = {
           ...initialStateData,
@@ -263,6 +313,7 @@ export const allocationItemsSlice = createSlice({
           status: 'hasError'
         };
       });
+
     builder
       .addCase(getItemsByGroupAndAccount.pending, (state, action) => {
         const { companyNo, accountNo } = action.meta.arg;

@@ -38,7 +38,7 @@ export async function apiCaller(api: string, method: Method = 'GET', options: Ax
     url = `${appApiUrl}${api}`;
   }
 
-  console.log('REQUEST: ', url);
+  // console.log('REQUEST: ', url);
 
   return axios({ url, method, ...options })
     .then((response) => response)

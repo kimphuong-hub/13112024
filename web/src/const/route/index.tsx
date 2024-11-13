@@ -51,7 +51,19 @@ export const getMenuRoute = (t: TFunction<'translation', undefined>): MenuRoute[
         id: 'users.user-administrator',
         path: '/users/users-administrator',
         title: t('app.menu.users.users-administrator')
+      },
+      {
+        id: 'users.app.menu.users',
+        path: '/users/users',
+        title: t('app.menu.users')
+      },
+      {
+        id: 'users.app.menu.users',
+        path: '/users/securityrole',
+        title: t('app.menu.users.securityrole')
       }
+    
+    
     ]
   },
   {
@@ -124,6 +136,26 @@ export const getBreadcrumbsRoute = (t: TFunction<'translation', undefined>): Bre
     id: 'users.users-administrator',
     path: '/users/users-administrator',
     title: t('app.breadcrumb.users.users-administrator')
+  },
+  {
+    id: 'users.roles',
+    path: '/users/roles',
+    title: t('app.breadcrumb.users.roles')
+  },  
+  {
+    id: 'users.users',
+    path: '/users/users',
+    title: t('app.breadcrumb.users.users')
+  },
+  {
+    id: 'users.users.newusers',
+    path: '/users/users/newusers',
+    title: t('app.breadcrumb.users.newusers')
+  },
+  {
+    id: 'users.users.editusers',
+    path: '/users/users/editusers',
+    title: t('app.breadcrumb.users.editusers')
   },
   {
     id: 'helps',

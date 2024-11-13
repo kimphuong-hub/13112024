@@ -1,8 +1,10 @@
-import { Box, BoxProps } from '@mui/material';
+
+import { Box, BoxProps } from '@mui/material'; 
 import moment from 'moment';
 import packageJson from 'packageJson';
 import { useEffect, useState } from 'react';
 import { TypographySecondary } from '~/base/components/Material/Typography';
+import Tooltip from '~/base/components/Material/Tooltip';
 
 type Props = BoxProps & {
   openDrawer: boolean;
@@ -22,6 +24,7 @@ export default function LayoutVersion(props: Props) {
   }, []);
 
   return (
+    <Tooltip title="Unknown" >
     <Box
       sx={{
         display: openDrawer ? 'block' : 'none',
@@ -36,5 +39,6 @@ export default function LayoutVersion(props: Props) {
       <TypographySecondary>V{packageJson.version}</TypographySecondary>
       <TypographySecondary>{currentDate.format('hh:mm:ss A MM/DD/YYYY')}</TypographySecondary>
     </Box>
+    </Tooltip>
   );
 }

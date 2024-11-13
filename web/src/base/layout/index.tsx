@@ -54,24 +54,38 @@ export default function Layout(props: Props) {
     if (openDrawerByUser) {
       return;
     }
-
     if (isMd) {
       setOpenDrawer(2);
       return;
     }
-
     setOpenDrawer(0);
   }, [isMd, openDrawerByUser]);
 
   const onClickBars = useCallback(() => {
+    let newOpenDrawer;
     if (isMd) {
-      setOpenDrawer((prev) => (prev === 1 ? 2 : 1));
+      newOpenDrawer = openDrawer === 1 ? 2 : 1;
     } else {
-      setOpenDrawer((prev) => (prev > 1 ? 0 : prev + 1));
+      newOpenDrawer = openDrawer > 1 ? 0 : openDrawer + 1;
     }
+    setOpenDrawer(newOpenDrawer);
     setOpenDrawerByUser(true);
-  }, [isMd]);
+    localStorage.setItem('openDrawer', JSON.stringify(newOpenDrawer));
+  }, [isMd, openDrawer]);
 
+  useEffect(() => {
+    const savedOpenDrawer = localStorage.getItem('openDrawer');
+    if (savedOpenDrawer) {
+      setOpenDrawer(JSON.parse(savedOpenDrawer));
+      setOpenDrawerByUser(true);
+    } else {
+      if (isMd) {
+        setOpenDrawer(2);
+      } else {
+        setOpenDrawer(0);
+      }
+    }
+  }, [isMd]);
   // End Drawer
 
   // User Configuration

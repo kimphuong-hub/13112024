@@ -1,0 +1,150 @@
+{
+  "groupAccounts": [
+    {
+      "id": "21e0",
+      "email": "danuong2702003@gmail.com",
+      "displayname": "gggg",
+      "lastname": "gggll",
+      "firstname": "admin@cisbox.com",
+      "password": "Phuong2710@",
+      "repeatPassword": "Phuong2710@",
+      "userstype": "Partner",
+      "createddate": "2024-10-30",
+      "active": true
+    },
+    {
+      "id": "c5f2",
+      "email": "dangphuon7102003@gmail.com",
+      "displayname": "ggggggggggjjjj",
+      "lastname": "gggg",
+      "firstname": "admin@cisbox.com",
+      "password": "Phuong2710@",
+      "repeatPassword": "Phuong2710@",
+      "userstype": "Partner",
+      "createddate": "2024-11-01",
+      "active": false
+    },
+    {
+      "id": "2446",
+      "email": "conquyphuong@email.com",
+      "displayname": "gggg",
+      "lastname": "gggg",
+      "firstname": "admin@cisbox.com",
+      "password": "Phuong2710@",
+      "repeatPassword": "Phuong2710@",
+      "userstype": "System",
+      "createddate": "2024-11-01",
+      "active": false
+    },
+    {
+      "id": "6091",
+      "email": "dangphuong27102003@gmail.com",
+      "displayname": "fff",
+      "lastname": "ffff",
+      "firstname": "admin@cisbox.comffff",
+      "password": "Phuong2710@",
+      "repeatPassword": "Phuong2710@",
+      "userstype": "Company",
+      "createddate": "2024-11-01",
+      "active": true
+    },
+    {
+      "id": "2e7d",
+      "email": "dangphuong2702003@gmail.com",
+      "displayname": "ffff",
+      "lastname": "ffff",
+      "firstname": "admin@cisbox.com",
+      "password": "Phuong2710@",
+      "repeatPassword": "Phuong2710@",
+      "userstype": "Partner",
+      "securityrole": "BornDigital_Team_No_GMD",
+      "createddate": "2024-11-05",
+      "active": false
+    }
+  ],
+  "SecurityRole": [
+    {
+      "Id": 1,
+      "Name": "BornDigital_Team",
+      "Description": "BomDigital",
+      "LastUpdate": "2024-11-01T10:00:00",
+      "UpdateBy": 1001,
+      "id": "1841"
+    },
+    {
+      "Id": 2,
+      "Name": "BornDigital_V1",
+      "Description": "BomDigital",
+      "LastUpdate": "2024-11-02T15:30:00",
+      "UpdateBy": 1002,
+      "id": "5b0b"
+    },
+    {
+      "Id": 3,
+      "Name": "VI_TOP_Born_BY_GMD-ID",
+      "Description": "BomDigital",
+      "LastUpdate": "2024-11-03T12:45:00",
+      "UpdateBy": 1003,
+      "id": "61dc"
+    }
+
+  ],
+  "Permission": [
+    {
+      "Id": 101,
+      "Name": "Manage Users",
+      "Description": "Can manage user accounts",
+      "ParentPermissionId": null,
+      "UpdateBy": 1001,
+      "LastUpdate": "2024-11-01T09:00:00",
+      "Actived": true,
+      "id": "f609"
+    },
+    {
+      "Id": 102,
+      "Name": "Edit Articles",
+      "Description": "Can edit articles",
+      "ParentPermissionId": null,
+      "UpdateBy": 1002,
+      "LastUpdate": "2024-11-02T14:00:00",
+      "Actived": true,
+      "id": "06da"
+    },
+    {
+      "Id": 103,
+      "Name": "View Reports",
+      "Description": "Can view reports",
+      "ParentPermissionId": null,
+      "UpdateBy": 1003,
+      "LastUpdate": "2024-11-03T11:00:00",
+      "Actived": true,
+      "id": "d0ed"
+    }
+  ],
+  "PermissionRole": [
+    {
+      "Id": 1,
+      "PermissionId": 101,
+      "SecurityRole_Ref": 1,
+      "UpdateBy": 1001,
+      "LastUpdate": "2024-11-01T10:15:00",
+      "id": "3d10"
+    },
+    {
+      "Id": 2,
+      "PermissionId": 102,
+      "SecurityRole_Ref": 2,
+      "UpdateBy": 1002,
+      "LastUpdate": "2024-11-02T15:45:00",
+      "id": "b60f"
+    },
+    {
+      "Id": 3,
+      "PermissionId": 103,
+      "SecurityRole_Ref": 3,
+      "UpdateBy": 1003,
+      "LastUpdate": "2024-11-03T13:00:00",
+      "id": "39df"
+    }
+  ]
+}

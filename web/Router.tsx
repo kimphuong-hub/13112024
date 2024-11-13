@@ -3,7 +3,7 @@ import { RouterProvider as RouterProviderDefault, createBrowserRouter } from 're
 import AppError from '~/base/Error';
 import LayoutAuthError from '~/base/auth/Error';
 import LayoutError from '~/base/layout/Error';
-
+import PermissionRoleScreen from '~/main/screens/Users/Security/PermissionRole/List';
 const Layout = lazy(() => import('./src/base/layout'));
 const LayoutNotFound = lazy(() => import('~/base/layout/NotFound'));
 
@@ -27,6 +27,12 @@ const AccountSettingsGroupAccountsUpdateScreen = lazy(
 const AccountSettingsSystemAccountsListScreen = lazy(
   () => import('~/main/screens/AccountSettings/SystemAccounts/List')
 );
+const UsersRolesScreen = lazy(() => import('~/main/screens/Users/Roles/List'));
+const SecurityroleUserScreen = lazy(() => import('~/main/screens/Users/Security'));
+
+const UsersScreen = lazy(() => import('~/main/screens/Users/Users/List'));
+const UsersNewUsersScreen = lazy(() => import('~/main/screens/Users/Users/NewUsers'));
+const EditUserScreen = lazy(() => import('~/main/screens/Users/Users/Edit'));
 
 const UsersUsersAdministratorScreen = lazy(() => import('~/main/screens/Users/UsersAdministrator/List'));
 
@@ -114,9 +120,50 @@ const router = createBrowserRouter([
             path: 'users',
             children: [
               {
+                path: 'users',
+                children: [
+                  {
+                    path: '',
+                    element: <UsersScreen />
+                  },
+                  {
+                    path: 'newusers',
+                    element: <UsersNewUsersScreen />
+                  },  
+                  {
+                    path: 'editusers/:id',
+                    element: <EditUserScreen />
+                  }      
+               
+                ]
+                
+              },
+              {
+                path: 'securityrole',
+                children: [
+                  {
+                    path: '',
+                    element: <SecurityroleUserScreen />
+                  },
+                  {
+                    path: 'permissionrole',
+                    element: <PermissionRoleScreen />
+                  } 
+                ]
+                
+              },
+              
+           
+              {
                 path: 'users-administrator',
                 element: <UsersUsersAdministratorScreen />
-              }
+              },
+              {
+                path: 'roles',
+                element: <UsersRolesScreen />
+              },  
+              
+            
             ]
           },
           {

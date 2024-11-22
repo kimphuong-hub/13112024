@@ -72,6 +72,7 @@
   "app.menu.users.roles": "Roles",
   "app.menu.users.users-administrator": "Users Administrator",
   "app.menu.users.securityrole":"Security Role" ,
+  "app.menu.users.permission":"Permission" ,
   "app.menu.administrator": "Administrator",
   "app.menu.helps": "Trợ Giúp",
   "app.menu.helps.contact": "Liên Hệ",

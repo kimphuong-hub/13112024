@@ -61,8 +61,12 @@ export const getMenuRoute = (t: TFunction<'translation', undefined>): MenuRoute[
         id: 'users.app.menu.users',
         path: '/users/securityrole',
         title: t('app.menu.users.securityrole')
+      },
+      {
+        id: 'users.app.menu.permission',
+        path: '/users/permission',
+        title: t('app.menu.users.permission')
       }
-    
     
     ]
   },

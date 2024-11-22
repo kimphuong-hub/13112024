@@ -146,5 +146,43 @@
       "LastUpdate": "2024-11-03T13:00:00",
       "id": "39df"
     }
+  ],
+  "PermissionList": [
+    {
+      "id": 1,
+      "allocation1": "Domain A",
+      "allocation2": "Group 101",
+      "verification": "Verified Group A",
+      "clarification1": 5,
+      "unsettled": 2,
+      "checked": 1,
+      "invoices": "Last Invoice A",
+      "items": "New Allocation A",
+      "defaultAllocation": 100
+    },
+    {
+      "id": 2,
+      "allocation1": "Domain B",
+      "allocation2": "Group 102",
+      "verification": "Verified Group B",
+      "clarification1": 10,
+      "unsettled": 0,
+      "checked": 5,
+      "invoices": "Last Invoice B",
+      "items": "New Allocation B",
+      "defaultAllocation": 200
+    },
+    {
+      "id": 3,
+      "allocation1": "Domain C",
+      "allocation2": "Group 103",
+      "verification": "Verified Group C",
+      "clarification1": 7,
+      "unsettled": 1,
+      "checked": 3,
+      "invoices": "Last Invoice C",
+      "items": "New Allocation C",
+      "defaultAllocation": 150
+    }
   ]
 }

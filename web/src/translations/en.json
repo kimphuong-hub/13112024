@@ -33,6 +33,7 @@
   "app.title.users.users": "Users",
   "app.title.users.newusers": "New Users",
   "app.title.users.editusers": "Edit Users",
+  
 
   "app.system.error.title": "Oops!",
   "app.system.error.message": "Something went wrong. Please try again later.",
@@ -70,6 +71,7 @@
   "app.menu.users": "Users",
   "app.menu.users.roles": "Roles",
   "app.menu.users.users-administrator": "Users Administrator",
+  "app.menu.users.permission":"Permission" ,
   "app.menu.administrator": "Administrator",
   "app.menu.helps": "Helps",
   "app.menu.helps.contact": "Contact",

@@ -23,7 +23,7 @@ import Typography from '~/base/components/Material/Typography';
 const ConditionView = ({ test }: { test: boolean }) =>
   test ? <View color='green'>✔</View> : <View color='red'>✖</View>;
 
-const ProfileChangePasswordScreen = () => {
+const NewUsersScreen = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -215,4 +215,4 @@ const ProfileChangePasswordScreen = () => {
   );
 };
 
-export default ProfileChangePasswordScreen;
+export default NewUsersScreen;

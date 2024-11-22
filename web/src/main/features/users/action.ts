@@ -4,8 +4,8 @@ import { typesAction, typesApi } from './const';
 import { FilterType } from '~/core/types';
 import axios from 'axios';
 import moment from 'moment';
-import { FormValues } from '~/main/screens/Users/Users/NewUsers/common/form';
 import { t } from 'i18next';
+import { FormValues } from '~/main/screens/Users/Users/NewUsers/common/form';
 
 const API_URL = 'http://localhost:3001/groupAccounts';
 export const getUsers = createAsyncThunk(typesAction.GET_USERS_ACTION, async (payload: FilterType) => {
@@ -100,9 +100,10 @@ export const deleteUserData = async (id: any) => {
   }
 };
 
-export const fetchUsers = async (): Promise<any> => {
+
+export const getPermission = async (): Promise<any> => {
   try {
-    const response = await axios.get('http://localhost:3001/SecurityRole');
+    const response = await axios.get(`http://localhost:3001/PermissionList`);
     return response.data;
   } catch (error) {
     console.error('Error fetching group accounts:', error);

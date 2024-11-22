@@ -3,7 +3,7 @@ import { RouterProvider as RouterProviderDefault, createBrowserRouter } from 're
 import AppError from '~/base/Error';
 import LayoutAuthError from '~/base/auth/Error';
 import LayoutError from '~/base/layout/Error';
-import PermissionRoleScreen from '~/main/screens/Users/Security/PermissionRole/List';
+
 const Layout = lazy(() => import('./src/base/layout'));
 const LayoutNotFound = lazy(() => import('~/base/layout/NotFound'));
 
@@ -29,13 +29,14 @@ const AccountSettingsSystemAccountsListScreen = lazy(
 );
 const UsersRolesScreen = lazy(() => import('~/main/screens/Users/Roles/List'));
 const SecurityroleUserScreen = lazy(() => import('~/main/screens/Users/Security'));
+const PermissionRoleScreen = lazy(() => import('~/main/screens/Users/Security/PermissionRole/List'));
 
 const UsersScreen = lazy(() => import('~/main/screens/Users/Users/List'));
-const UsersNewUsersScreen = lazy(() => import('~/main/screens/Users/Users/NewUsers'));
 const EditUserScreen = lazy(() => import('~/main/screens/Users/Users/Edit'));
+const PermissionListScreen = lazy(() => import('~/main/screens/Users/PermissionList/List'));
+const NewUsersScreen = lazy(() => import('~/main/screens/Users/Users/NewUsers'));
 
 const UsersUsersAdministratorScreen = lazy(() => import('~/main/screens/Users/UsersAdministrator/List'));
-
 const HelpsAboutScreen = lazy(() => import('~/main/screens/Helps/About'));
 const HelpsChangelogScreen = lazy(() => import('~/main/screens/Helps/Changelog'));
 const HelpsLegalNoticeScreen = lazy(() => import('~/main/screens/Helps/LegalNotice'));
@@ -128,7 +129,7 @@ const router = createBrowserRouter([
                   },
                   {
                     path: 'newusers',
-                    element: <UsersNewUsersScreen />
+                    element: <NewUsersScreen />
                   },  
                   {
                     path: 'editusers/:id',
@@ -148,7 +149,11 @@ const router = createBrowserRouter([
                   {
                     path: 'permissionrole',
                     element: <PermissionRoleScreen />
-                  } 
+                  },
+                  {
+                    path: 'permissionlist',
+                    element: <PermissionListScreen />
+                  }
                 ]
                 
               },
